@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: private-blog-test
+
+  # SQL 초기화 비활성화(Hibernate ddl-auto 설정을 사용할 것)
+  #(schema.sql이나 data.sql이 없으면 사실 작동 하지않는다.)
+  sql:
+    init:
+      mode: never
