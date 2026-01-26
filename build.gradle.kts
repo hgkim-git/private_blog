@@ -95,12 +95,14 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     "developmentOnly"("org.springframework.boot:spring-boot-devtools")
 
+    // Databases
     // MySQL
     runtimeOnly("com.mysql:mysql-connector-j")
+    // H2
+    runtimeOnly("com.h2database:h2")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("com.h2database:h2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
