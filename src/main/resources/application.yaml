@@ -1,16 +1,10 @@
 spring:
   application:
     name: private-blog
+  profiles:
+    default: local
+    active: ${SPRING_PROFILE:local}
 
   sql:
     init:
       mode: never
-
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-    # Syntax error가 보이면 build.gradle에 dependency 추가(runtimeOnly("com.mysql:mysql-connector-j"))
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-
