@@ -38,7 +38,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public void deletePostBySlug(@PathVariable Long id) {
+    public void deletePost(@PathVariable Long id) {
         postService.deletePost(id);
     }
 
@@ -59,7 +59,8 @@ public class PostController {
     public Page<PostSummaryResponseDto> getAllPosts(
         @RequestParam(required = false) String categorySlug,
         @RequestParam(required = false) String keyword,
-        @PageableDefault(size = 10, page = 0, direction = Sort.Direction.DESC, sort = "createdAt")
+        // size=10(default), page=0(default)
+        @PageableDefault(direction = Sort.Direction.DESC, sort = "createdAt")
         Pageable pageable
     ) {
         return postService.getPostList(categorySlug, keyword, pageable);

@@ -28,7 +28,7 @@ public class TagController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTagBySlug(@PathVariable Long id) {
+    public void deleteTag(@PathVariable Long id) {
         tagService.deleteTag(id);
     }
 
