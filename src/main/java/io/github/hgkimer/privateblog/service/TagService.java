@@ -13,7 +13,7 @@ public class TagService {
 
     private final TagRepository tagRepository;
 
-    public Tag createTage(Tag tag) {
+    public Tag createTag(Tag tag) {
         return tagRepository.save(tag);
     }
 

@@ -2,8 +2,8 @@ package io.github.hgkimer.privateblog.web.controller;
 
 import io.github.hgkimer.privateblog.domain.entity.Tag;
 import io.github.hgkimer.privateblog.service.TagService;
-import io.github.hgkimer.privateblog.web.dto.request.TagUpdateDto;
 import io.github.hgkimer.privateblog.web.dto.request.TagCreateDto;
+import io.github.hgkimer.privateblog.web.dto.request.TagUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +24,7 @@ public class TagController {
     @PostMapping()
     public Tag createTag(@RequestBody TagCreateDto dto) {
         Tag tag = Tag.of(dto.name(), dto.slug());
-        return tagService.createTage(tag);
+        return tagService.createTag(tag);
     }
 
     @DeleteMapping("/{id}")

@@ -1,5 +1,9 @@
 package io.github.hgkimer.privateblog.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
 import io.github.hgkimer.privateblog.domain.entity.Tag;
 import io.github.hgkimer.privateblog.persistence.jpa.TagRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,23 +30,17 @@ class TagServiceTest {
     }
 
     @Test
-    void createCategory() {
-        tagService.createTage(tag);
+    void createTag() {
+        given(tagRepository.save(any(Tag.class))).willReturn(tag);
+        tag = tagService.createTag(tag);
+        assertThat(tag).isNotNull();
+        assertThat(tag.getName()).isEqualTo("test");
+        assertThat(tag.getSlug()).isEqualTo("test");
     }
 
     @Test
     void deleteTag() {
         tagService.deleteTag(tag.getId());
-    }
-
-    @Test
-    void updateTag() {
-        Tag updatedTag = Tag.builder().name("test2").slug("test2").build();
-//        tagService.updateTag(tag.getId(), updatedTag);
-    }
-
-    @Test
-    void getTagById() {
-//        tagService.getTagById(tag.getId());
+        assertThat(tagRepository.findAll()).isEmpty();
     }
 }
