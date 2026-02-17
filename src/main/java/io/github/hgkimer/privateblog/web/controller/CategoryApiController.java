@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/api/categories")
 @RequiredArgsConstructor
 @Validated
-public class CategoryController {
+public class CategoryApiController {
 
     private final CategoryService categoryService;
 

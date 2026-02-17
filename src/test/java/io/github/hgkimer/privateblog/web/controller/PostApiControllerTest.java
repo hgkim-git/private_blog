@@ -31,8 +31,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@WebMvcTest(PostController.class)
-class PostControllerTest {
+@WebMvcTest(PostApiController.class)
+class PostApiControllerTest {
 
     private final String uriRoot = "/posts";
     @Autowired

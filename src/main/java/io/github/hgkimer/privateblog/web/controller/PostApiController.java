@@ -30,10 +30,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
 @RequiredArgsConstructor
 @Validated
-public class PostController {
+public class PostApiController {
 
     private final PostService postService;
 

@@ -20,8 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@WebMvcTest(TagController.class)
-class TagControllerTest {
+@WebMvcTest(TagApiController.class)
+class TagApiControllerTest {
 
     private final String uriRoot = "/tags";
     @Autowired
