@@ -14,6 +14,9 @@ import io.github.hgkimer.privateblog.web.dto.request.PostCreateDto;
 import io.github.hgkimer.privateblog.web.dto.request.PostUpdateDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostDetailResponseDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostSummaryResponseDto;
+import io.github.hgkimer.privateblog.web.exception.DuplicateResourceException;
+import io.github.hgkimer.privateblog.web.exception.ErrorCode;
+import io.github.hgkimer.privateblog.web.exception.ResourceNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +37,14 @@ public class PostService {
     private final TagRepository tagRepository;
 
     public Post createPost(PostCreateDto postCreateDto) {
-        validate(postCreateDto);
+        validateUser(postCreateDto.author());
+        if (postCreateDto.categoryId() != null) {
+            validateCategory(postCreateDto.categoryId());
+        }
+        validateTags(postCreateDto.tagsIds());
         if (postRepository.existsBySlug(postCreateDto.slug())) {
-            throw new IllegalArgumentException("Slug already exists");
+            throw new DuplicateResourceException(ErrorCode.DUPLICATE_POST_SLUG,
+                postCreateDto.slug());
         }
 
         Post post = convertToPost(postCreateDto);
@@ -47,27 +54,29 @@ public class PostService {
     }
 
     public Post updatePost(Long id, PostUpdateDto postUpdateDto) {
+        Long categoryId = postUpdateDto.categoryId();
+        if (categoryId != null) {
+            validateCategory(categoryId);
+        }
+        validateTags(postUpdateDto.tagsIds());
+
         Post post = postRepository.findByIdWithDetails(id);
         if (post == null) {
-            throw new IllegalArgumentException("Post not found");
+            throw new ResourceNotFoundException(ErrorCode.POST_NOT_FOUND, id.toString());
         }
-        validate(postUpdateDto);
 
         String slug = postUpdateDto.slug();
         if (!slug.equals(post.getSlug()) && postRepository.existsBySlug(postUpdateDto.slug())) {
-            throw new IllegalArgumentException("Slug already exists");
+            throw new DuplicateResourceException(ErrorCode.DUPLICATE_POST_SLUG);
         }
 
-        Long categoryId = postUpdateDto.categoryId();
-        Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new IllegalArgumentException("Category not found"));
-
-        post.update(postUpdateDto.title(),
+        post.update(
+            postUpdateDto.title(),
             postUpdateDto.content(),
             postUpdateDto.summary(),
             postUpdateDto.slug(),
             postUpdateDto.status(),
-            category
+            categoryId == null ? null : categoryRepository.findById(categoryId).orElse(null)
         );
         List<Tag> tags = tagRepository.findTagByIdIn(postUpdateDto.tagsIds());
         addTags(post, tags);
@@ -78,49 +87,49 @@ public class PostService {
         postRepository.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
     public PostDetailResponseDto getPostBySlug(String slug) {
         Post post = postRepository.findBySlugWithDetails(slug)
-            .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+            .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.POST_NOT_FOUND, slug));
         post.increaseViewCount();
         return PostDetailResponseDto.from(post);
     }
 
     @Transactional(readOnly = true)
-    public Page<PostSummaryResponseDto> getPostList(String categorySlug, String keyword,
+    public Page<PostSummaryResponseDto> getCategorizedPostList(String categorySlug, String keyword,
         Pageable pageable) {
-        if (categorySlug != null) {
-            Long categoryId = categoryRepository.findBySlug(categorySlug)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found")).getId();
-            return postRepository.findAllPostsByCategoryId(PostStatus.PUBLISHED, categoryId,
-                keyword, pageable).map(PostSummaryResponseDto::map);
-        } else {
-            return postRepository.findAllPosts(PostStatus.PUBLISHED, keyword, pageable).map(
-                PostSummaryResponseDto::map);
-        }
+        Long categoryId = categoryRepository.findBySlug(categorySlug)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(ErrorCode.CATEGORY_NOT_FOUND, categorySlug))
+            .getId();
+        return postRepository.findAllPostsByCategoryId(PostStatus.PUBLISHED, categoryId, keyword,
+            pageable).map(PostSummaryResponseDto::map);
     }
 
-    private void validate(PostCreateDto dto) {
-        userRepository.findByEmail(dto.author())
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (dto.categoryId() != null) {
-            categoryRepository.findById(dto.categoryId()).orElseThrow(
-                () -> new IllegalArgumentException("Category not found")
-            );
-        }
-        if (!dto.tagsIds().isEmpty()) {
-            Assert.notEmpty(tagRepository.findTagByIdIn(dto.tagsIds()), "Tags not found");
-        }
+    @Transactional(readOnly = true)
+    public Page<PostSummaryResponseDto> getPostList(String keyword,
+        Pageable pageable) {
+        return postRepository.findAllPosts(PostStatus.PUBLISHED, keyword, pageable).map(
+            PostSummaryResponseDto::map);
     }
 
-    private void validate(PostUpdateDto dto) {
-        if (dto.categoryId() != null) {
-            categoryRepository.findById(dto.categoryId()).orElseThrow(
-                () -> new IllegalArgumentException("Category not found")
-            );
+    private void validateUser(String email) {
+        userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND, email));
+    }
+
+    private void validateCategory(Long categoryId) {
+        categoryRepository.findById(categoryId)
+            .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.CATEGORY_NOT_FOUND,
+                categoryId.toString()));
+    }
+
+    private void validateTags(List<Long> tagIds) {
+        if (tagIds.isEmpty()) {
+            return;
         }
-        if (!dto.tagsIds().isEmpty()) {
-            Assert.notEmpty(tagRepository.findTagByIdIn(dto.tagsIds()), "Tags not found");
+        List<Tag> tags = tagRepository.findTagByIdIn(tagIds);
+        if (tagIds.size() != tags.size()) {
+            throw new IllegalArgumentException("Tags mismatched");
         }
     }
 
@@ -133,7 +142,7 @@ public class PostService {
 
     private User getRequiredUser(String email) {
         return userRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND, email));
     }
 
     private Category getOptionalCategory(Long categoryId) {

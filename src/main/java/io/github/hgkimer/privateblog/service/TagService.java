@@ -2,6 +2,8 @@ package io.github.hgkimer.privateblog.service;
 
 import io.github.hgkimer.privateblog.domain.entity.Tag;
 import io.github.hgkimer.privateblog.persistence.jpa.TagRepository;
+import io.github.hgkimer.privateblog.web.exception.ErrorCode;
+import io.github.hgkimer.privateblog.web.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +32,9 @@ public class TagService {
     // @Transactional(readOnly = true) 조회용 쿼리 이므로 JPA가 스냅샷을 남기지 않도록 함
     @Transactional(readOnly = true)
     public Tag getTagById(Long id) {
-        return tagRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        return tagRepository.findById(id)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(ErrorCode.TAG_NOT_FOUND, id.toString()));
     }
 
 }

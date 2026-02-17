@@ -6,11 +6,19 @@ import io.github.hgkimer.privateblog.web.dto.request.PostCreateDto;
 import io.github.hgkimer.privateblog.web.dto.request.PostUpdateDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostDetailResponseDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostSummaryResponseDto;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,46 +32,55 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/posts")
 @RequiredArgsConstructor
+@Validated
 public class PostController {
 
     private final PostService postService;
 
     @PostMapping()
-    public PostDetailResponseDto createPost(@RequestBody PostCreateDto postCreateDto)
-        throws RuntimeException {
+    public ResponseEntity<PostDetailResponseDto> createPost(
+        @RequestBody @Valid PostCreateDto postCreateDto) {
         // TODO: Authorization check
-        // TODO: validate
         // TODO: 새로운 태그는 클라이언트에서 먼저 처리하여 게시글 생성 요청에는 모두 존재하는 태그만 전달
-        return PostDetailResponseDto.from(postService.createPost(postCreateDto));
+        PostDetailResponseDto responseDto = PostDetailResponseDto.from(
+            postService.createPost(postCreateDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     @DeleteMapping("/{id}")
-    public void deletePost(@PathVariable Long id) {
+    public ResponseEntity<Object> deletePost(@PathVariable @Positive Long id) {
         postService.deletePost(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
-    public PostDetailResponseDto updatePost(@PathVariable Long id,
-        @RequestBody PostUpdateDto postUpdateDto) {
+    public ResponseEntity<PostDetailResponseDto> updatePost(@PathVariable @Positive Long id,
+        @Valid @RequestBody PostUpdateDto postUpdateDto) {
         // TODO: Authorization check
-        // TODO: validate
-        return PostDetailResponseDto.from(postService.updatePost(id, postUpdateDto));
+        PostDetailResponseDto responseDto = PostDetailResponseDto.from(
+            postService.updatePost(id, postUpdateDto));
+        return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/{slug}")
-    public PostDetailResponseDto getPostBySlug(@PathVariable String slug) {
-        return postService.getPostBySlug(slug);
+    public ResponseEntity<PostDetailResponseDto> getPostBySlug(
+        @PathVariable @Pattern(regexp = "^[a-z0-9-]+$") @NotBlank String slug) {
+        PostDetailResponseDto post = postService.getPostBySlug(slug);
+        return ResponseEntity.ok(post);
     }
 
     @GetMapping("")
-    public Page<PostSummaryResponseDto> getAllPosts(
-        @RequestParam(required = false) String categorySlug,
-        @RequestParam(required = false) String keyword,
+    public ResponseEntity<Page<PostSummaryResponseDto>> getPosts(
+        @RequestParam(required = false) @Pattern(regexp = "^[a-z0-9-]+$") String categorySlug,
+        @RequestParam(required = false) @Size(max = 50) String keyword,
         // size=10(default), page=0(default)
         @PageableDefault(direction = Sort.Direction.DESC, sort = "createdAt")
         Pageable pageable
     ) {
-        return postService.getPostList(categorySlug, keyword, pageable);
+        Page<PostSummaryResponseDto> list = categorySlug == null ? postService.getPostList(keyword,
+            pageable) : postService.getCategorizedPostList(categorySlug, keyword, pageable);
+        return ResponseEntity.ok(list);
     }
+
 
 }

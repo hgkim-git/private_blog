@@ -2,6 +2,8 @@ package io.github.hgkimer.privateblog.service;
 
 import io.github.hgkimer.privateblog.domain.entity.Category;
 import io.github.hgkimer.privateblog.persistence.jpa.CategoryRepository;
+import io.github.hgkimer.privateblog.web.exception.ErrorCode;
+import io.github.hgkimer.privateblog.web.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +34,8 @@ public class CategoryService {
     // @Transactional(readOnly = true) 조회용 쿼리 이므로 JPA가 스냅샷을 남기지 않도록 함
     @Transactional(readOnly = true)
     public Category getCategoryById(Long id) {
-        return categoryRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+            ErrorCode.CATEGORY_NOT_FOUND, id.toString()));
     }
 
 }
