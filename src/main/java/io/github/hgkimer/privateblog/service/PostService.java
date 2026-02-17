@@ -102,14 +102,14 @@ public class PostService {
                 () -> new ResourceNotFoundException(ErrorCode.CATEGORY_NOT_FOUND, categorySlug))
             .getId();
         return postRepository.findAllPostsByCategoryId(PostStatus.PUBLISHED, categoryId, keyword,
-            pageable).map(PostSummaryResponseDto::map);
+            pageable).map(PostSummaryResponseDto::from);
     }
 
     @Transactional(readOnly = true)
     public Page<PostSummaryResponseDto> getPostList(String keyword,
         Pageable pageable) {
         return postRepository.findAllPosts(PostStatus.PUBLISHED, keyword, pageable).map(
-            PostSummaryResponseDto::map);
+            PostSummaryResponseDto::from);
     }
 
     private void validateUser(String email) {

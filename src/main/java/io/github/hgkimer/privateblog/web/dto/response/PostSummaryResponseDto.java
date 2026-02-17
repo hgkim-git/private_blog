@@ -17,7 +17,7 @@ public record PostSummaryResponseDto(
     List<TagResponseDto> tags
 ) {
 
-    public static PostSummaryResponseDto map(Post post) {
+    public static PostSummaryResponseDto from(Post post) {
         Category category = post.getCategory();
         return new PostSummaryResponseDto(
             post.getId(),
