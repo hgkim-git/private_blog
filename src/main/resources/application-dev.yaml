@@ -12,6 +12,12 @@ spring:
       # create: 시작 시 테이블 삭제 후 재생성 (위험, 테스트용)
       # none: 아무것도 하지 않음
       ddl-auto: update
+  thymeleaf:
+    cache: false
+    prefix: file:src/main/resources/templates/
+  web:
+    resources:
+      static-locations: file:src/main/resources/static/
 
 logging:
   level:

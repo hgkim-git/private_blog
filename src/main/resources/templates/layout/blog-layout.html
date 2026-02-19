@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/blog/common-head :: common-head}">
+  <title></title>
+</head>
+<body>
+<!-- Header -->
+<header th:replace="~{fragments/blog/header :: header}"></header>
+<!-- Main Content-->
+<div class="blog-container" layout:fragment="content"></div>
+<!-- Footer -->
+<footer th:replace="~{fragments/blog/footer :: footer}"></footer>
+<!-- Common JavaScript-->
+<script th:src="@{/js/common.js}"></script>
+</body>
+</html>

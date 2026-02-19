@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="common-head">
+  <meta charset="UTF-8">
+  <title layout:title-pattern="$LAYOUT_TITLE: $CONTENT_TITLE">Dev Blog</title>
+  <!-- Common CSS -->
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/blog-layout.css}">
+  <link rel="stylesheet" th:href="@{/css/blog-components.css}">
+  <link rel="icon" th:href="@{/img/favicon.ico}">
+  <!-- Custom CSS -->
+  <th:block layout:fragment="styles"></th:block>
+</head>
+<body>
+</body>
+</html>

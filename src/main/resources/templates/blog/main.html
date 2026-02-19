@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko" layout:decorate="layout/blog-layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>메인</title>
+</head>
+<body>
+<!-- Main Layout -->
+<div class="blog-container" layout:fragment="content">
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <aside class="blog-sidebar">
+      <!-- Search -->
+      <div class="search-box">
+        <input
+            class="search-input"
+            placeholder="검색..."
+            type="text"
+        >
+      </div>
+
+      <!-- Categories -->
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">카테고리</h3>
+        <ul class="sidebar-list">
+          <li class="sidebar-item" th:each="category : ${categories}">
+            <a class="sidebar-link" th:href="@{/posts(categorySlug=${category.slug})}">
+              <span th:text="${category.name}">Spring</span>
+              <!--<span class="post-count" th:text="${category.postCount}">12</span>-->
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Popular Tags -->
+      <!--<div class="sidebar-section">
+        <h3 class="sidebar-title">인기 태그</h3>
+        <div class="post-tags">
+          <span class="tag">Spring Boot</span>
+          <span class="tag">JPA</span>
+          <span class="tag">MySQL</span>
+          <span class="tag">Docker</span>
+          <span class="tag">AWS</span>
+          <span class="tag">Redis</span>
+        </div>
+      </div>-->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="blog-main">
+      <div class="empty-state" th:if="${#lists.isEmpty(posts)}">
+        <div class="empty-icon">📝</div>
+        <div class="empty-title">게시글이 없습니다</div>
+        <div class="empty-text">첫 게시글을 작성해보세요!</div>
+      </div>
+      <div class="posts-grid" th:unless="${#lists.isEmpty(posts)}">
+        <article class="post-card" th:each="post : ${posts}">
+          <div class="post-card-content">
+            <div class="post-meta">
+              <span class="post-category" th:text="${post.category.name}">Spring</span>
+              <span class="post-date"
+                    th:text="'📅 ' + ${#temporals.format(post.createdAt, 'yyyy.MM.dd')}">
+                📅 2024.01.15
+              </span>
+            </div>
+            <h2 class="post-title">
+              <a th:href="@{/posts/{slug}(slug=${post.slug})}" th:text="${post.title}">
+                Spring Security와 JWT를 활용한 인증 시스템 구현
+              </a>
+            </h2>
+            <p class="post-excerpt" th:text="${post.summary}">
+              Spring Security와 JWT를 결합하여 안전하고 확장 가능한 인증 시스템을 구현하는 방법을 단계별로 알아봅니다. Access Token과
+              Refresh Token의 역할, 그리고 실전 예제 코드를 포함합니다.
+            </p>
+            <div class="post-tags" th:each="tag : ${post.tags}">
+              <span class="tag" th:text="${tag.name}">Spring Security</span>
+              <!--<span class="tag">JWT</span>
+              <span class="tag">인증</span>-->
+            </div>
+            <div class="post-footer">
+              <div class="post-stats">
+                <span class="stat-item" th:text="${'👁️ ' + post.viewCount}">👁️ 1,234</span>
+                <!--<span class="stat-item">💬 12</span>-->
+              </div>
+              <a class="read-more" th:href="@{/posts/{slug}(slug=${post.slug})}">
+                자세히 보기 →
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

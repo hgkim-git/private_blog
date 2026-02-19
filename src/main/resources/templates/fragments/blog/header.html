@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<header class="blog-header" th:fragment="header">
+  <div class="header-content">
+    <a class="blog-logo" th:href="@{/}">Dev Blog</a>
+    <nav class="header-nav">
+      <!--<a href="#" class="nav-link">홈</a>
+      <a href="#" class="nav-link">카테고리</a>
+      <a href="#" class="nav-link">태그</a>
+      <a href="#" class="nav-link">소개</a>-->
+    </nav>
+    <button class="theme-toggle-btn" id="themeToggle">
+      <span id="themeIcon">🌙</span>
+    </button>
+  </div>
+</header>
+</body>
+</html>

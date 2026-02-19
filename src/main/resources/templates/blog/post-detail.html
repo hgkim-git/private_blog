@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko" layout:decorate="layout/blog-layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="${post.title}">제목</title>
+</head>
+<body>
+<!-- Main Layout -->
+<div class="blog-container" layout:fragment="content">
+  <div class="main-layout">
+    <!-- TOC Sidebar -->
+    <aside class="toc-sidebar">
+      <h3 class="toc-title">목차</h3>
+      <ul class="toc-list">
+        <!--<li class="toc-item">
+          <a href="#intro" class="toc-link active">들어가며</a>
+        </li>
+        <li class="toc-item">
+          <a href="#setup" class="toc-link">프로젝트 설정</a>
+        </li>
+        <li class="toc-item">
+          <a href="#jwt" class="toc-link">JWT 토큰 생성</a>
+        </li>
+        <li class="toc-item">
+          <a href="#security" class="toc-link">Security 설정</a>
+        </li>
+        <li class="toc-item">
+          <a href="#filter" class="toc-link">JWT 필터 구현</a>
+        </li>
+        <li class="toc-item">
+          <a href="#conclusion" class="toc-link">마치며</a>
+        </li>-->
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="blog-main">
+      <article class="post-detail">
+        <!-- Post Header -->
+        <div class="post-header">
+          <h1 class="post-detail-title" th:text="${post.title}">
+            Spring Security와 JWT를 활용한 인증 시스템 구현
+          </h1>
+          <div class="post-detail-meta">
+            <span class="post-category" th:text="${post.category.name}">Spring</span>
+            <span class="post-date"
+                  th:text="${'📅 ' + #temporals.format(post.createdAt, 'yyyy.MM.dd')}">📅 2024.01.15</span>
+            <span class="stat-item" th:text="${'👁️ ' + post.viewCount}">👁️ 1,234</span>
+            <!--<span class="stat-item">💬 12</span>-->
+          </div>
+          <div class="post-tags">
+            <span class="tag" th:each="tag : ${post.tags}"
+                  th:text="${tag.name}">Spring Security</span>
+          </div>
+        </div>
+
+        <!-- Post Content -->
+        <div class="post-content" th:utext="${post.content}"></div>
+      </article>
+
+      <!-- Comments Section -->
+      <!--<section class="comments-section">
+        <h3 class="comments-header">댓글 12개</h3>
+
+        &lt;!&ndash; Comment Form &ndash;&gt;
+        <div class="comment-form">
+          <h4 class="comment-form-title">댓글 작성</h4>
+          <form>
+            <div class="form-grid">
+              <input
+                  type="text"
+                  class="comment-input"
+                  placeholder="이름"
+                  required
+              >
+              <input
+                  type="email"
+                  class="comment-input"
+                  placeholder="이메일"
+                  required
+              >
+            </div>
+            <textarea
+                class="comment-textarea"
+                placeholder="댓글을 입력하세요..."
+                required
+            ></textarea>
+            <button type="submit" class="submit-btn">댓글 작성</button>
+          </form>
+        </div>
+
+        &lt;!&ndash; Comments List &ndash;&gt;
+        <div class="comments-list">
+          <div class="comment">
+            <div class="comment-header">
+              <span class="comment-author">김개발</span>
+              <span class="comment-date">2024.01.15</span>
+            </div>
+            <div class="comment-body">
+              JWT 토큰 관리 방법에 대해 정말 자세하게 설명해주셔서 감사합니다.
+              Refresh Token은 어디에 저장하는 게 가장 안전한가요?
+            </div>
+          </div>
+
+          <div class="comment">
+            <div class="comment-header">
+              <span class="comment-author">박백엔드</span>
+              <span class="comment-date">2024.01.14</span>
+            </div>
+            <div class="comment-body">
+              실무에 바로 적용할 수 있을 만큼 구체적인 예제 코드가 도움이 많이 되었습니다!
+            </div>
+          </div>
+
+          <div class="comment">
+            <div class="comment-header">
+              <span class="comment-author">이보안</span>
+              <span class="comment-date">2024.01.13</span>
+            </div>
+            <div class="comment-body">
+              토큰 만료 시간 설정에 대한 가이드가 있으면 좋겠습니다.
+              일반적으로 권장되는 시간은 어느 정도인가요?
+            </div>
+          </div>
+        </div>
+      </section>-->
+    </main>
+  </div>
+</div>
+</body>
+</html>

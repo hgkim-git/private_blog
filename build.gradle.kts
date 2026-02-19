@@ -90,11 +90,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.4.0")
+    "developmentOnly"("org.springframework.boot:spring-boot-devtools")
 
     // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-    "developmentOnly"("org.springframework.boot:spring-boot-devtools")
 
     // Databases
     // MySQL

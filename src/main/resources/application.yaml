@@ -4,7 +4,13 @@ spring:
   profiles:
     default: local
     active: ${SPRING_PROFILE:local}
-
+  jpa:
+    open-in-view: false
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
   sql:
     init:
       mode: never
