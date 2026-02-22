@@ -65,7 +65,7 @@
               </span>
             </div>
             <h2 class="post-title">
-              <a th:href="@{/posts/{slug}(slug=${post.slug})}" th:text="${post.title}">
+              <a th:href="${'/posts/' + post.slug}" th:text="${post.title}">
                 Spring Security와 JWT를 활용한 인증 시스템 구현
               </a>
             </h2>
@@ -83,12 +83,34 @@
                 <span class="stat-item" th:text="${'👁️ ' + post.viewCount}">👁️ 1,234</span>
                 <!--<span class="stat-item">💬 12</span>-->
               </div>
-              <a class="read-more" th:href="@{/posts/{slug}(slug=${post.slug})}">
+              <a class="read-more" th:href="${'/posts/' + post.slug}">
                 자세히 보기 →
               </a>
             </div>
           </div>
         </article>
+      </div>
+      <div class="pagination"
+           th:unless="${#lists.isEmpty(posts)}">
+        <a class="page-btn"
+             th:href="${baseURL + 'page=0'}">처음</a>
+        <a class="page-btn"
+           th:href="${baseURL + 'page=' + (page.number - 1)}"
+           th:if="${page.hasPrevious()}">
+          이전
+        </a>
+        <a class="page-btn"
+           th:classappend="${i == page.number} ? 'active'"
+           th:each="i : ${#numbers.sequence(startPage, endPage)}"
+           th:href="${baseURL + 'page=' + i}"
+           th:text="${i + 1}">1</a>
+        <a class="page-btn"
+           th:href="${baseURL + 'page=' + (page.number + 1)}"
+           th:if="${page.hasNext()}">
+          다음
+        </a>
+        <a class="page-btn"
+           th:href="${baseURL + 'page=' + (page.totalPages - 1)}">마지막</a>
       </div>
     </main>
   </div>

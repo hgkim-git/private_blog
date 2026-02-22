@@ -32,22 +32,39 @@ public class BlogController {
     public String posts(
         @RequestParam(required = false) @Pattern(regexp = "^[a-z0-9-]+$") String categorySlug,
         @RequestParam(required = false) @Size(max = 50) String keyword,
-        @PageableDefault(direction = Sort.Direction.DESC, sort = "createdAt") Pageable pageable,
+        @PageableDefault(size = 10, direction = Sort.Direction.DESC, sort = "createdAt") Pageable pageable,
         Model model) {
-        Page<PostSummaryResponseDto> posts = categorySlug == null ? postService.getPostList(keyword,
-            pageable) : postService.getCategorizedPostList(categorySlug, keyword, pageable);
-        model.addAttribute("posts", posts);
+      Page<PostSummaryResponseDto> page = categorySlug == null ? postService.getPostList(keyword,
+          pageable) : postService.getCategorizedPostList(categorySlug, keyword, pageable);
+      int pagSetSize = 5;
+      int currentPage = page.getNumber();
+      int startPage = (currentPage / pagSetSize) * pagSetSize;
+      int endPage = Math.min(startPage + pagSetSize - 1, page.getTotalPages() - 1);
+      model.addAttribute("posts", page.getContent());
+      model.addAttribute("page", page);
+      model.addAttribute("startPage", startPage);
+      model.addAttribute("endPage", endPage);
 
-        List<CategoryResponseDto> categories = categoryService.getAllCategories();
-        model.addAttribute("categories", categories);
-        return "blog/main";
+      List<CategoryResponseDto> categories = categoryService.getAllCategories();
+      model.addAttribute("categories", categories);
+
+      StringBuilder sb = new StringBuilder();
+      sb.append("/posts?");
+      if (categorySlug != null) {
+        sb.append("categorySlug=").append(categorySlug);
+      }
+      if (keyword != null) {
+        sb.append("&keyword=").append(keyword).append('&');
+      }
+      model.addAttribute("baseURL", sb.toString());
+      return "blog/main";
     }
 
     @GetMapping("/posts/{slug}")
     public String postDetail(@PathVariable @Pattern(regexp = "^[a-z0-9-]+$") String slug,
         Model model) {
-        PostDetailResponseDto post = postService.getPostBySlug(slug);
-        model.addAttribute("post", post);
-        return "blog/post-detail";
+      PostDetailResponseDto post = postService.getPostBySlug(slug);
+      model.addAttribute("post", post);
+      return "blog/post-detail";
     }
 }
