@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>500 - 서버 오류</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/error-pages.css}">
+  <link rel="icon" th:href="@{/img/favicon.ico}">
+  <style>
+    .error-code {
+      color: #f56565; /* 폴백 색상 */
+      background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .error-emoji {
+      animation: shake 0.5s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+<div class="error-container">
+  <div class="error-content">
+    <div class="error-emoji">⚠️</div>
+    <div class="error-code">500</div>
+    <h1 class="error-title">서버 오류가 발생했습니다</h1>
+    <p class="error-description">
+      일시적인 서버 오류로 페이지를 표시할 수 없습니다.<br>
+      잠시 후 다시 시도해주세요. 문제가 계속되면 관리자에게 문의해주세요.
+    </p>
+
+    <div class="error-actions">
+      <a class="btn btn-primary" th:href="@{/}">
+        🏠 홈으로 돌아가기
+      </a>
+      <button class="btn btn-secondary" onclick="location.reload()">
+        🔄 새로고침
+      </button>
+    </div>
+    <div class="error-details">
+      <div class="details-title">
+        <span>💡</span>
+        <span>이런 경우에 도움이 될 수 있어요</span>
+      </div>
+      <div class="details-list">
+        <div class="detail-item">
+          <span class="detail-icon">•</span>
+          <span>페이지를 새로고침하거나 잠시 후 다시 시도해보세요</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-icon">•</span>
+          <span>브라우저 캐시를 삭제하고 다시 접속해보세요</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-icon">•</span>
+          <span>다른 브라우저에서 접속해보세요</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-icon">•</span>
+          <span>문제가 계속되면 아래 연락처로 문의해주세요</span>
+        </div>
+      </div>
+    </div>
+    <div class="contact-box">
+      <div class="contact-title">문제가 계속되나요?</div>
+      <div class="contact-text">
+        오류가 지속되면 관리자에게 문의해주세요.<br>
+        이메일: <a href="mailto:hgkimer@gmail.com">hgkimer@gmail.com</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

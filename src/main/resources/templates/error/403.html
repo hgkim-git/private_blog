@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>403 - 접근 권한이 없습니다</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/error-pages.css}">
+  <link rel="icon" th:href="@{/img/favicon.ico}">
+  <style>
+    .error-code {
+      color: #ed8936; /* 폴백 색상 */
+      background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .error-emoji {
+      animation: wiggle 1s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+<div class="error-container">
+  <div class="error-content">
+    <div class="error-emoji">🔒</div>
+    <div class="error-code">403</div>
+    <h1 class="error-title">접근 권한이 없습니다</h1>
+    <p class="error-description">
+      이 페이지에 접근할 권한이 없습니다.<br>
+      로그인이 필요하거나 관리자 권한이 필요한 페이지일 수 있습니다.
+    </p>
+    <div class="error-actions">
+      <a class="btn btn-primary" th:href="@{/}">
+        🏠 홈으로 돌아가기
+      </a>
+      <button class="btn btn-secondary" onclick="history.back()">
+        ← 이전 페이지
+      </button>
+    </div>
+    <div class="login-box">
+      <div class="login-title">로그인이 필요하신가요?</div>
+      <div class="login-text">
+        로그인하면 더 많은 기능을 이용하실 수 있습니다
+      </div>
+      <a class="login-btn" th:href="@{/login}">
+        🔑 로그인하기
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 다크 모드 초기화
+  const isDarkMode = localStorage.getItem('darkMode') === 'true' ||
+      (!localStorage.getItem('darkMode') && window.matchMedia(
+          '(prefers-color-scheme: dark)').matches);
+
+  if (isDarkMode) {
+    document.documentElement.classList.add('dark');
+  }
+</script>
+</body>
+</html>
