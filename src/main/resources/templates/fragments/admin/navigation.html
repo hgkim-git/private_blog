@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<aside class="sidebar" th:fragment="navigation">
+  <nav class="sidebar-nav">
+    <a th:href="@{/admin/dashboard}" class="nav-item"
+       th:classappend="${#strings.startsWith(currentUri, '/admin/dashboard') ? 'active' : ''}">
+      <span class="nav-icon">📊</span>
+      <span>대시보드</span>
+    </a>
+    <a th:href="@{/admin/posts}" class="nav-item"
+       th:classappend="${#strings.startsWith(currentUri, '/admin/posts') ? 'active' : ''}">
+      <span class="nav-icon">📝</span>
+      <span>게시글 관리</span>
+    </a>
+    <a th:href="@{/admin/categories}" class="nav-item"
+       th:classappend="${#strings.startsWith(currentUri, '/admin/categories') ? 'active' : ''}">
+      <span class="nav-icon">📁</span>
+      <span>카테고리 관리</span>
+    </a>
+    <a th:href="@{/admin/tags}" class="nav-item"
+       th:classappend="${#strings.startsWith(currentUri, '/admin/tags') ? 'active' : ''}">
+      <span class="nav-icon">🏷️</span>
+      <span>태그 관리</span>
+    </a>
+    <!--<a th:href="@{/admin/comments}" class="nav-item"
+       th:classappend="${#strings.startsWith(currentUri, '/admin/comments') ? 'active' : ''}">
+      <span class="nav-icon">💬</span>
+      <span>댓글 관리</span>
+    </a>-->
+    <div class="sidebar-divider"></div>
+    <a th:href="@{/posts}" class="nav-item">
+      <span class="nav-icon">🏠</span>
+      <span>블로그 홈</span>
+    </a>
+  </nav>
+</aside>
+</body>
+</html>

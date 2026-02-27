@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+  <meta charset="UTF-8">
+  <title layout:title-pattern="$CONTENT_TITLE : $LAYOUT_TITLE">관리자</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/admin-layout.css}">
+  <link rel="stylesheet" th:href="@{/css/admin-components.css}">
+  <link rel="icon" th:href="@{/img/favicon.ico}">
+</head>
+<body>
+<header th:replace="~{fragments/admin/header :: header}"></header>
+<!-- Layout -->
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" th:replace="~{fragments/admin/navigation :: navigation}"></aside>
+  <!-- Main Content -->
+  <main class="main-content" layout:fragment="content"></main>
+</div>
+<!-- Common JavaScript-->
+<script th:src="@{/js/common.js}"></script>
+<!-- Custom JS -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

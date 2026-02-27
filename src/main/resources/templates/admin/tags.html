@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko" layout:decorate="layout/admin-layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+  <title>태그 관리</title>
+  <style>
+    /* 페이지 고유 스타일 */
+    .tag-container {
+      max-width: 800px;
+    }
+
+    .form-row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .edit-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .slug-hint {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+<!-- Main Content -->
+<main class="main-content" layout:fragment="content">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-title-section">
+      <h1 class="page-title">태그 관리</h1>
+      <p class="page-subtitle">게시글에 사용할 태그를 관리합니다</p>
+    </div>
+  </div>
+
+  <!-- Tag Management -->
+  <div class="tag-container">
+    <div class="section-card">
+      <div class="section-header">
+        <div>
+          <span class="section-title">태그</span>
+          <span class="section-count" id="tagCount">(12개)</span>
+        </div>
+      </div>
+
+      <!-- Add Form -->
+      <div class="add-form">
+        <form id="addTagForm">
+          <div class="form-row-2col">
+            <div>
+              <input
+                  type="text"
+                  class="form-input"
+                  id="newTagName"
+                  placeholder="태그 이름 (예: Spring Security)"
+                  required
+              >
+            </div>
+            <div>
+              <input
+                  type="text"
+                  class="form-input"
+                  id="newTagSlug"
+                  placeholder="Slug (예: spring-security)"
+                  maxlength="250"
+                  pattern="[a-z0-9-]+"
+                  required
+              >
+              <div class="slug-hint">영문 소문자, 숫자, 하이픈만 입력 가능</div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 12px;">추가</button>
+        </form>
+      </div>
+
+      <!-- Items List -->
+      <div class="items-list" id="tagList">
+        <div class="item" data-id="1">
+          <div class="item-info">
+            <div class="item-name">JWT</div>
+            <div class="item-meta">
+              <span>Slug: jwt</span>
+              <span style="margin-left: 12px;">게시글 3개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(1)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(1)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="2">
+          <div class="item-info">
+            <div class="item-name">Spring Security</div>
+            <div class="item-meta">
+              <span>Slug: spring-security</span>
+              <span style="margin-left: 12px;">게시글 2개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(2)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(2)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="3">
+          <div class="item-info">
+            <div class="item-name">JPA</div>
+            <div class="item-meta">
+              <span>Slug: jpa</span>
+              <span style="margin-left: 12px;">게시글 5개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(3)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(3)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="4">
+          <div class="item-info">
+            <div class="item-name">성능최적화</div>
+            <div class="item-meta">
+              <span>Slug: performance-optimization</span>
+              <span style="margin-left: 12px;">게시글 4개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(4)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(4)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="5">
+          <div class="item-info">
+            <div class="item-name">MySQL</div>
+            <div class="item-meta">
+              <span>Slug: mysql</span>
+              <span style="margin-left: 12px;">게시글 3개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(5)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(5)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="6">
+          <div class="item-info">
+            <div class="item-name">인덱스</div>
+            <div class="item-meta">
+              <span>Slug: index</span>
+              <span style="margin-left: 12px;">게시글 2개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(6)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(6)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="7">
+          <div class="item-info">
+            <div class="item-name">Docker</div>
+            <div class="item-meta">
+              <span>Slug: docker</span>
+              <span style="margin-left: 12px;">게시글 3개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(7)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(7)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="8">
+          <div class="item-info">
+            <div class="item-name">CI/CD</div>
+            <div class="item-meta">
+              <span>Slug: ci-cd</span>
+              <span style="margin-left: 12px;">게시글 2개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(8)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(8)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="9">
+          <div class="item-info">
+            <div class="item-name">Redis</div>
+            <div class="item-meta">
+              <span>Slug: redis</span>
+              <span style="margin-left: 12px;">게시글 2개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(9)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(9)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="10">
+          <div class="item-info">
+            <div class="item-name">캐싱</div>
+            <div class="item-meta">
+              <span>Slug: caching</span>
+              <span style="margin-left: 12px;">게시글 2개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(10)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(10)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="11">
+          <div class="item-info">
+            <div class="item-name">Stream API</div>
+            <div class="item-meta">
+              <span>Slug: stream-api</span>
+              <span style="margin-left: 12px;">게시글 1개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(11)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(11)">삭제</button>
+          </div>
+        </div>
+
+        <div class="item" data-id="12">
+          <div class="item-info">
+            <div class="item-name">Java</div>
+            <div class="item-meta">
+              <span>Slug: java</span>
+              <span style="margin-left: 12px;">게시글 6개</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit" onclick="editTag(12)">수정</button>
+            <button class="action-btn delete" onclick="deleteTag(12)">삭제</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<!-- 페이지 JavaScript -->
+<script layout:fragment="scripts">
+  // Slug 자동 생성
+  const newTagName = document.getElementById('newTagName');
+  const newTagSlug = document.getElementById('newTagSlug');
+
+  newTagName.addEventListener('input', (e) => {
+    if (!newTagSlug.value) {
+      newTagSlug.value = generateSlug(e.target.value);
+    }
+  });
+
+  newTagSlug.addEventListener('input', (e) => {
+    e.target.value = e.target.value
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-|-$/g, '');
+  });
+
+  // Slug 생성 함수
+  function generateSlug(text) {
+    return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .substring(0, 250);
+  }
+
+  // 태그 추가
+  document.getElementById('addTagForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = newTagName.value.trim();
+    const slug = newTagSlug.value.trim();
+
+    if (name && slug) {
+      console.log('태그 추가:', {name, slug});
+      alert(`태그 "${name}" (${slug})가 추가되었습니다.`);
+      newTagName.value = '';
+      newTagSlug.value = '';
+    }
+  });
+
+  // 태그 수정
+  function editTag(id) {
+    const item = document.querySelector(`.item[data-id="${id}"]`);
+    const nameEl = item.querySelector('.item-name');
+    const metaEl = item.querySelector('.item-meta');
+    const actionsEl = item.querySelector('.item-actions');
+
+    const currentName = nameEl.textContent;
+    const currentSlug = metaEl.textContent.match(/Slug: ([^\s]+)/)[1];
+
+    item.classList.add('editing');
+
+    const editForm = document.createElement('div');
+    editForm.className = 'edit-form';
+    editForm.innerHTML = `
+                <input 
+                    type="text" 
+                    class="edit-input" 
+                    id="editName${id}"
+                    value="${currentName}"
+                >
+                <input 
+                    type="text" 
+                    class="edit-input" 
+                    id="editSlug${id}"
+                    value="${currentSlug}"
+                    pattern="[a-z0-9-]+"
+                >
+                <button class="btn btn-success" onclick="saveTag(${id})">저장</button>
+                <button class="btn btn-cancel" onclick="cancelEdit(${id})">취소</button>
+            `;
+
+    item.querySelector('.item-info').style.display = 'none';
+    actionsEl.style.display = 'none';
+    item.insertBefore(editForm, actionsEl);
+
+    // Slug 입력 검증
+    document.getElementById(`editSlug${id}`).addEventListener('input', (e) => {
+      e.target.value = e.target.value
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/--+/g, '-');
+    });
+  }
+
+  // 저장
+  function saveTag(id) {
+    const name = document.getElementById(`editName${id}`).value.trim();
+    const slug = document.getElementById(`editSlug${id}`).value.trim();
+
+    if (!name || !slug) {
+      alert('이름과 Slug를 모두 입력해주세요.');
+      return;
+    }
+
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      alert('Slug는 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.');
+      return;
+    }
+
+    console.log('태그 수정:', {id, name, slug});
+    alert(`태그가 "${name}" (${slug})로 수정되었습니다.`);
+    location.reload();
+  }
+
+  // 취소
+  function cancelEdit(id) {
+    location.reload();
+  }
+
+  // 삭제
+  function deleteTag(id) {
+    if (confirm('이 태그를 삭제하시겠습니까?\n태그에 연결된 게시글에서 태그가 제거됩니다.')) {
+      console.log('태그 삭제:', id);
+      alert('태그가 삭제되었습니다.');
+    }
+  }
+
+  // Window에 함수 노출
+  window.editTag = editTag;
+  window.saveTag = saveTag;
+  window.cancelEdit = cancelEdit;
+  window.deleteTag = deleteTag;
+</script>
+</body>
+</html>

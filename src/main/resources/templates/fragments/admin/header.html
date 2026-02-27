@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<header class="header" th:fragment="header">
+  <div class="header-container">
+    <div class="header-left">
+      <a th:href="@{/admin}" class="logo">Dev Blog</a>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+    <div class="header-right">
+      <div class="user-info">
+        <div class="user-avatar">👤</div>
+        <span class="user-name">관리자</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle">
+        <span id="themeIcon">🌙</span>
+      </button>
+      <button class="logout-btn">로그아웃</button>
+    </div>
+  </div>
+</header>
+</body>
+</html>

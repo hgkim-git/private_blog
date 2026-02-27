@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko" layout:decorate="layout/admin-layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+  <title>게시글 관리</title>
+  <style layout:fragment="styles">
+    /* 페이지 고유 스타일 */
+    .post-title-cell {
+      max-width: 400px;
+    }
+
+    .post-title-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .post-title-link:hover {
+      color: var(--color-primary);
+    }
+  </style>
+</head>
+<body>
+<!-- Main Content -->
+<main class="main-content" layout:fragment="content">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-title-section">
+      <h1 class="page-title">게시글 관리</h1>
+      <p class="page-subtitle">전체 게시글을 관리하고 수정할 수 있습니다</p>
+    </div>
+    <div class="page-actions">
+      <a th:href="@{/admin/posts/form}" class="btn btn-primary">
+        <span>✏️</span>
+        <span>새 게시글 작성</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label class="filter-label">검색</label>
+        <input
+            type="text"
+            class="filter-input"
+            placeholder="제목 또는 내용으로 검색..."
+            id="searchInput"
+        >
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">카테고리</label>
+        <select class="filter-select" id="categoryFilter">
+          <option value="">전체</option>
+          <option value="spring">Spring</option>
+          <option value="java">Java</option>
+          <option value="database">Database</option>
+          <option value="devops">DevOps</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">상태</label>
+        <select class="filter-select" id="statusFilter">
+          <option value="">전체</option>
+          <option value="published">게시</option>
+          <option value="draft">임시저장</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label" style="opacity: 0;">버튼</label>
+        <button class="btn btn-secondary" id="resetBtn">초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Posts Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <div>
+        <span class="table-title">게시글 목록</span>
+        <span class="table-count" id="postCount">(28개)</span>
+      </div>
+      <div class="bulk-actions">
+        <span class="table-count" id="selectedCount"></span>
+        <button class="btn btn-danger" id="bulkDeleteBtn" style="display: none;">
+          선택 삭제
+        </button>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+        <tr>
+          <th class="checkbox-col">
+            <input type="checkbox" class="checkbox" id="selectAll">
+          </th>
+          <th>제목</th>
+          <th>카테고리</th>
+          <th>상태</th>
+          <th>조회수</th>
+          <th>작성일</th>
+          <th class="actions-col">작업</th>
+        </tr>
+        </thead>
+        <tbody id="postsTableBody">
+        <tr>
+          <td style="text-align: center;">
+            <input type="checkbox" class="checkbox row-checkbox" data-id="1">
+          </td>
+          <td class="post-title-cell">
+            <a href="#" class="post-title-link">Spring Security와 JWT를 활용한 인증 시스템 구현</a>
+          </td>
+          <td>Spring</td>
+          <td><span class="status-badge published">게시</span></td>
+          <td>1,234</td>
+          <td>2024.01.15</td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn" onclick="editPost(1)">수정</button>
+              <button class="action-btn delete" onclick="deletePost(1)">삭제</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">
+            <input type="checkbox" class="checkbox row-checkbox" data-id="2">
+          </td>
+          <td class="post-title-cell">
+            <a href="#" class="post-title-link">JPA N+1 문제 완벽 정리 및 해결 방법</a>
+          </td>
+          <td>Java</td>
+          <td><span class="status-badge published">게시</span></td>
+          <td>2,156</td>
+          <td>2024.01.12</td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn" onclick="editPost(2)">수정</button>
+              <button class="action-btn delete" onclick="deletePost(2)">삭제</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">
+            <input type="checkbox" class="checkbox row-checkbox" data-id="3">
+          </td>
+          <td class="post-title-cell">
+            <a href="#" class="post-title-link">MySQL 인덱스 설계 전략과 성능 최적화</a>
+          </td>
+          <td>Database</td>
+          <td><span class="status-badge published">게시</span></td>
+          <td>1,867</td>
+          <td>2024.01.10</td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn" onclick="editPost(3)">수정</button>
+              <button class="action-btn delete" onclick="deletePost(3)">삭제</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">
+            <input type="checkbox" class="checkbox row-checkbox" data-id="4">
+          </td>
+          <td class="post-title-cell">
+            <a href="#" class="post-title-link">Docker 컨테이너 배포 자동화 구축하기</a>
+          </td>
+          <td>DevOps</td>
+          <td><span class="status-badge draft">임시저장</span></td>
+          <td>0</td>
+          <td>2024.01.08</td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn" onclick="editPost(4)">수정</button>
+              <button class="action-btn delete" onclick="deletePost(4)">삭제</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">
+            <input type="checkbox" class="checkbox row-checkbox" data-id="5">
+          </td>
+          <td class="post-title-cell">
+            <a href="#" class="post-title-link">Redis를 활용한 Spring 애플리케이션 캐싱 전략</a>
+          </td>
+          <td>Spring</td>
+          <td><span class="status-badge published">게시</span></td>
+          <td>1,543</td>
+          <td>2024.01.08</td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn" onclick="editPost(5)">수정</button>
+              <button class="action-btn delete" onclick="deletePost(5)">삭제</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">
+            <input type="checkbox" class="checkbox row-checkbox" data-id="6">
+          </td>
+          <td class="post-title-cell">
+            <a href="#" class="post-title-link">Java Stream API 실전 활용법과 성능 고려사항</a>
+          </td>
+          <td>Java</td>
+          <td><span class="status-badge published">게시</span></td>
+          <td>987</td>
+          <td>2024.01.05</td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn" onclick="editPost(6)">수정</button>
+              <button class="action-btn delete" onclick="deletePost(6)">삭제</button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button class="page-btn" disabled>이전</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">4</button>
+      <button class="page-btn">5</button>
+      <button class="page-btn">다음</button>
+    </div>
+  </div>
+</main>
+
+<!-- 페이지 JavaScript -->
+<script layout:fragment="scripts">
+  // 전체 선택 체크박스
+  const selectAllCheckbox = document.getElementById('selectAll');
+  const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+  const selectedCount = document.getElementById('selectedCount');
+  const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+  selectAllCheckbox.addEventListener('change', () => {
+    rowCheckboxes.forEach(checkbox => {
+      checkbox.checked = selectAllCheckbox.checked;
+    });
+    updateSelectedCount();
+  });
+
+  rowCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      updateSelectAllState();
+      updateSelectedCount();
+    });
+  });
+
+  function updateSelectAllState() {
+    const checkedCount = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
+    selectAllCheckbox.checked = checkedCount === rowCheckboxes.length;
+    selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < rowCheckboxes.length;
+  }
+
+  function updateSelectedCount() {
+    const checkedCount = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
+
+    if (checkedCount > 0) {
+      selectedCount.textContent = `${checkedCount}개 선택됨`;
+      bulkDeleteBtn.style.display = 'block';
+    } else {
+      selectedCount.textContent = '';
+      bulkDeleteBtn.style.display = 'none';
+    }
+  }
+
+  // 일괄 삭제
+  bulkDeleteBtn.addEventListener('click', () => {
+    const selectedIds = Array.from(rowCheckboxes)
+    .filter(cb => cb.checked)
+    .map(cb => cb.dataset.id);
+
+    if (confirm(`선택한 ${selectedIds.length}개의 게시글을 삭제하시겠습니까?`)) {
+      console.log('삭제할 게시글 ID:', selectedIds);
+      alert('게시글이 삭제되었습니다.');
+    }
+  });
+
+  // 개별 삭제
+  function deletePost(id) {
+    if (confirm('이 게시글을 삭제하시겠습니까?')) {
+      console.log('삭제할 게시글 ID:', id);
+      alert('게시글이 삭제되었습니다.');
+    }
+  }
+
+  // 수정
+  function editPost(id) {
+    console.log('수정할 게시글 ID:', id);
+    window.location.href = 'admin-post-editor.html';
+  }
+
+  // 필터 초기화
+  const resetBtn = document.getElementById('resetBtn');
+  const searchInput = document.getElementById('searchInput');
+  const categoryFilter = document.getElementById('categoryFilter');
+  const statusFilter = document.getElementById('statusFilter');
+
+  resetBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    categoryFilter.value = '';
+    statusFilter.value = '';
+    console.log('필터 초기화');
+  });
+
+  // Window에 함수 노출
+  window.deletePost = deletePost;
+  window.editPost = editPost;
+</script>
+</body>
+</html>

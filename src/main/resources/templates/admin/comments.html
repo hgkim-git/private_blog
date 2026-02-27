@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko" layout:decorate="layout/admin-layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+  <title>댓글 관리</title>
+  <style>
+    /* 페이지 고유 스타일 */
+    .comment-content {
+      max-width: 400px;
+    }
+
+    .comment-text {
+      color: var(--text-primary);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .comment-author {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .post-link {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-size: 13px;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .post-link:hover {
+      text-decoration: underline;
+    }
+
+    .table th.actions-col {
+      width: 180px;
+    }
+
+    .table td {
+      vertical-align: top;
+    }
+  </style>
+</head>
+<body>
+<!-- Main Content -->
+<main class="main-content" layout:fragment="content">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-title-section">
+      <h1 class="page-title">댓글 관리</h1>
+      <p class="page-subtitle">게시글에 달린 댓글을 관리하고 승인할 수 있습니다</p>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label class="filter-label">검색</label>
+        <input
+            type="text"
+            class="filter-input"
+            placeholder="작성자 또는 내용으로 검색..."
+            id="searchInput"
+        >
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">게시글</label>
+        <select class="filter-select" id="postFilter">
+          <option value="">전체</option>
+          <option value="1">Spring Security와 JWT를 활용한 인증 시스템 구현</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">상태</label>
+        <select class="filter-select" id="statusFilter">
+          <option value="">전체</option>
+          <option value="approved">승인됨</option>
+          <option value="pending">승인 대기</option>
+          <option value="rejected">거부됨</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label" style="opacity: 0;">버튼</label>
+        <button class="btn btn-secondary" id="resetBtn">초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comments Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <div>
+        <span class="table-title">댓글 목록</span>
+        <span class="table-count">(142개)</span>
+      </div>
+      <div class="bulk-actions">
+        <span class="table-count" id="selectedCount"></span>
+        <button class="btn btn-danger" id="bulkDeleteBtn" style="display: none;">
+          선택 삭제
+        </button>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+        <tr>
+          <th class="checkbox-col">
+            <input type="checkbox" class="checkbox" id="selectAll">
+          </th>
+          <th>작성자</th>
+          <th>댓글 내용</th>
+          <th>게시글</th>
+          <th>상태</th>
+          <th>작성일</th>
+          <th class="actions-col">작업</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td style="text-align: center;">
+            <input type="checkbox" class="checkbox row-checkbox" data-id="1">
+          </td>
+          <td>
+            <div class="comment-author">김개발</div>
+          </td>
+          <td class="comment-content">
+            <div class="comment-text">JWT 토큰 관리 방법에 대해 정말 자세하게 설명해주셔서 감사합니다.</div>
+          </td>
+          <td><a href="#" class="post-link">Spring Security와 JWT를 활용한 인증 시스템 구현</a></td>
+          <td><span class="status-badge approved">승인됨</span></td>
+          <td>2024.01.15</td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn delete" onclick="deleteComment(1)">삭제</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">
+            <input type="checkbox" class="checkbox row-checkbox" data-id="2">
+          </td>
+          <td>
+            <div class="comment-author">박백엔드</div>
+          </td>
+          <td class="comment-content">
+            <div class="comment-text">N+1 문제 때문에 고생했는데 Fetch Join으로 해결했습니다.</div>
+          </td>
+          <td><a href="#" class="post-link">JPA N+1 문제 완벽 정리 및 해결 방법</a></td>
+          <td><span class="status-badge pending">승인 대기</span></td>
+          <td>2024.01.14</td>
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn approve" onclick="approveComment(2)">승인</button>
+              <button class="action-btn reject" onclick="rejectComment(2)">거부</button>
+              <button class="action-btn delete" onclick="deleteComment(2)">삭제</button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button class="page-btn" disabled>이전</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">다음</button>
+    </div>
+  </div>
+</main>
+<!-- 페이지 JavaScript -->
+<script layout:fragment="scripts">
+  // 전체 선택
+  const selectAllCheckbox = document.getElementById('selectAll');
+  const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+  const selectedCount = document.getElementById('selectedCount');
+  const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+  selectAllCheckbox.addEventListener('change', () => {
+    rowCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+    updateSelectedCount();
+  });
+
+  rowCheckboxes.forEach(cb => {
+    cb.addEventListener('change', updateSelectedCount);
+  });
+
+  function updateSelectedCount() {
+    const count = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
+    if (count > 0) {
+      selectedCount.textContent = `${count}개 선택됨`;
+      bulkDeleteBtn.style.display = 'block';
+    } else {
+      selectedCount.textContent = '';
+      bulkDeleteBtn.style.display = 'none';
+    }
+  }
+
+  // 댓글 액션
+  function approveComment(id) {
+    console.log('댓글 승인:', id);
+    alert('댓글이 승인되었습니다.');
+  }
+
+  function rejectComment(id) {
+    if (confirm('이 댓글을 거부하시겠습니까?')) {
+      console.log('댓글 거부:', id);
+      alert('댓글이 거부되었습니다.');
+    }
+  }
+
+  function deleteComment(id) {
+    if (confirm('이 댓글을 삭제하시겠습니까?')) {
+      console.log('댓글 삭제:', id);
+      alert('댓글이 삭제되었습니다.');
+    }
+  }
+
+  // Window에 함수 노출
+  window.approveComment = approveComment;
+  window.rejectComment = rejectComment;
+  window.deleteComment = deleteComment;
+</script>
+</body>
+</html>
