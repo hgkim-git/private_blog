@@ -64,7 +64,7 @@
         <article class="post-card" th:each="post : ${posts}">
           <div class="post-card-content">
             <div class="post-meta">
-              <span class="post-category" th:text="${post.category.name}">Spring</span>
+              <span th:unless="${post.category == null}" class="post-category" th:text="${post.category.name}">Spring</span>
               <span class="post-date"
                     th:text="'📅 ' + ${#temporals.format(post.createdAt, 'yyyy.MM.dd')}">
                 📅 2024.01.15

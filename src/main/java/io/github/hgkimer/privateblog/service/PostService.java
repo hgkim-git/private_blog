@@ -124,7 +124,7 @@ public class PostService {
   }
 
   private void validateTags(List<Long> tagIds) {
-    if (tagIds.isEmpty()) {
+    if (tagIds == null || tagIds.isEmpty()) {
       return;
     }
     List<Tag> tags = tagRepository.findTagByIdIn(tagIds);

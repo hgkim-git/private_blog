@@ -16,13 +16,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   boolean existsBySlug(String slug);
 
   @Query("SELECT p FROM Post p "
-      + "JOIN FETCH p.category "
+      + "LEFT JOIN FETCH p.category "
       + "JOIN FETCH p.author "
       + "WHERE p.id = :id")
   Post findByIdWithDetails(@Param("id") Long id);
 
   @Query("SELECT p FROM Post p "
-      + "JOIN FETCH p.category "
+      + "LEFT JOIN FETCH p.category "
       + "JOIN FETCH p.author "
       + "WHERE p.slug = :slug")
   Optional<Post> findBySlugWithDetails(@Param("slug") String slug);

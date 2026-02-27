@@ -43,7 +43,7 @@
             Spring Security와 JWT를 활용한 인증 시스템 구현
           </h1>
           <div class="post-detail-meta">
-            <span class="post-category" th:text="${post.category.name}">Spring</span>
+            <span th:unless="${post.category == null}" class="post-category" th:text="${post.category.name}">Spring</span>
             <span class="post-date"
                   th:text="${'📅 ' + #temporals.format(post.createdAt, 'yyyy.MM.dd')}">📅 2024.01.15</span>
             <span class="stat-item" th:text="${'👁️ ' + post.viewCount}">👁️ 1,234</span>
