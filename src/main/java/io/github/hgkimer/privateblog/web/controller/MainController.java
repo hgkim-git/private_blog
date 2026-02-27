@@ -13,4 +13,9 @@ public class MainController {
   public String landing() {
     return "redirect:/posts";
   }
+
+  @RequestMapping("/admin")
+  public String adminLanding() {
+    return "redirect:/admin/dashboard";
+  }
 }

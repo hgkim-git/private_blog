@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko" layout:decorate="layout/admin-layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+  <meta charset="UTF-8">
+  <title>대시보드</title>
+</head>
+<body>
+<main class="main-content" layout:fragment="content">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-title-section">
+      <h1 class="page-title">대시보드</h1>
+      <p class="page-subtitle">블로그 통계와 최근 활동을 확인하세요</p>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-header">
+        <div>
+          <div class="stat-label">전체 게시글</div>
+          <div class="stat-value">28</div>
+          <div class="stat-change positive">↑ 2개 증가</div>
+        </div>
+        <div class="stat-icon">📝</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <div>
+          <div class="stat-label">총 조회수</div>
+          <div class="stat-value">15,234</div>
+          <div class="stat-change positive">↑ 12.5%</div>
+        </div>
+        <div class="stat-icon">👁️</div>
+      </div>
+    </div>
+
+    <!--<div class="stat-card">
+      <div class="stat-header">
+        <div>
+          <div class="stat-label">총 댓글</div>
+          <div class="stat-value">142</div>
+          <div class="stat-change positive">↑ 8개 증가</div>
+        </div>
+        <div class="stat-icon">💬</div>
+      </div>
+    </div>-->
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <div>
+          <div class="stat-label">임시 저장</div>
+          <div class="stat-value">3</div>
+          <div class="stat-change">처리 필요</div>
+        </div>
+        <div class="stat-icon">⏰</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Posts -->
+  <div class="table-container">
+    <div class="table-header">
+      <span class="table-title">최근 게시글</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>제목</th>
+          <th>카테고리</th>
+          <th>상태</th>
+          <th>조회수</th>
+          <th>작성일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>
+            <a href="#" style="color: var(--text-primary); font-weight: 600;">Spring Security와 JWT를
+              활용한 인증 시스템 구현</a>
+          </td>
+          <td>Spring</td>
+          <td><span class="status-badge published">게시</span></td>
+          <td>1,234</td>
+          <td>2024.01.15</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="#" style="color: var(--text-primary); font-weight: 600;">JPA N+1 문제 완벽 정리 및 해결
+              방법</a>
+          </td>
+          <td>Java</td>
+          <td><span class="status-badge published">게시</span></td>
+          <td>2,156</td>
+          <td>2024.01.12</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="#" style="color: var(--text-primary); font-weight: 600;">MySQL 인덱스 설계 전략과 성능
+              최적화</a>
+          </td>
+          <td>Database</td>
+          <td><span class="status-badge published">게시</span></td>
+          <td>1,867</td>
+          <td>2024.01.10</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="#" style="color: var(--text-primary); font-weight: 600;">Docker 컨테이너 배포 자동화
+              구축하기</a>
+          </td>
+          <td>DevOps</td>
+          <td><span class="status-badge draft">임시저장</span></td>
+          <td>0</td>
+          <td>2024.01.08</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="#" style="color: var(--text-primary); font-weight: 600;">Redis를 활용한 Spring
+              애플리케이션 캐싱 전략</a>
+          </td>
+          <td>Spring</td>
+          <td><span class="status-badge published">게시</span></td>
+          <td>1,543</td>
+          <td>2024.01.08</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+</body>
+</html>
