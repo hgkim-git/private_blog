@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko" layout:decorate="layout/admin-layout"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
   <title>게시글 작성</title>
   <!-- Font Awesome -->
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+        rel="stylesheet">
   <!-- EasyMDE -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+  <link rel="stylesheet" th:href="@{/js/EasyMDE/css/easymde.min.css}">
   <style layout:fragment="styles">
     /* EasyMDE 다크모드 지원 */
     [data-theme="dark"] .EasyMDEContainer .CodeMirror {
       background-color: var(--bg-secondary);
       color: var(--text-primary);
       border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .EasyMDEContainer .CodeMirror .editor-preview {
+      background-color: var(--bg-card);
     }
 
     [data-theme="dark"] .EasyMDEContainer .editor-toolbar {
@@ -182,44 +186,41 @@
       <form id="postForm">
         <!-- 제목 -->
         <div class="form-group">
-          <label class="form-label">제목 *</label>
+          <label class="form-label" for="postTitle">제목 *</label>
           <input
-              type="text"
               class="form-input"
               id="postTitle"
               placeholder="게시글 제목을 입력하세요"
               required
+              type="text"
           >
         </div>
 
         <!-- 카테고리 -->
         <div class="form-group">
-          <label class="form-label">카테고리 *</label>
-          <select class="form-select" id="postCategory" required>
+          <label class="form-label" for="postCategory">카테고리</label>
+          <select class="form-select" id="postCategory">
             <option value="">카테고리를 선택하세요</option>
-            <option value="spring">Spring</option>
-            <option value="java">Java</option>
-            <option value="database">Database</option>
-            <option value="devops">DevOps</option>
+            <option th:each="category : ${categories}"
+                    th:text="${category.name}" th:value="${category.id}">Spring
+            </option>
           </select>
         </div>
 
         <!-- Slug -->
         <div class="form-group">
-          <label class="form-label">
+          <label class="form-label" for="postSlug">
             Slug (URL) *
-            <span style="font-size: 12px; color: var(--text-secondary); font-weight: normal;">
-                                    - 영문, 숫자, 하이픈만 사용 (예: spring-security-jwt)
-                                </span>
+            <span style="font-size: 12px; color: var(--text-secondary); font-weight: normal;">- 영문, 숫자, 하이픈만 사용 (예: spring-security-jwt)</span>
           </label>
           <input
-              type="text"
               class="form-input"
               id="postSlug"
-              placeholder="spring-security-jwt-authentication"
               maxlength="250"
               pattern="[a-z0-9-]+"
+              placeholder="spring-security-jwt-authentication"
               required
+              type="text"
           >
           <div style="display: flex; justify-content: space-between; margin-top: 4px;">
             <small style="color: var(--text-secondary); font-size: 12px;">
@@ -233,33 +234,29 @@
 
         <!-- 태그 -->
         <div class="form-group">
-          <label class="form-label">태그</label>
+          <label class="form-label" for="tagInput">태그</label>
           <div class="tags-container" id="tagsContainer">
             <input
-                type="text"
                 class="tag-input"
                 id="tagInput"
                 placeholder="태그를 입력하고 Enter 또는 쉼표를 입력하세요"
+                type="text"
             >
           </div>
         </div>
 
         <!-- 요약 -->
         <div class="form-group">
-          <label class="form-label">
-            요약 *
-            <span style="font-size: 12px; color: var(--text-secondary); font-weight: normal;">
-                                    - 검색 결과 및 카드에 표시됩니다
-                                </span>
+          <label class="form-label" for="postSummary">
+            요약
+            <span style="font-size: 12px; color: var(--text-secondary); font-weight: normal;">- 검색 결과 및 카드에 표시됩니다</span>
           </label>
           <textarea
               class="form-textarea"
               id="postSummary"
-              placeholder="게시글 요약을 입력하세요 (최대 500자)"
               maxlength="500"
-              rows="3"
-              required
-          ></textarea>
+              placeholder="게시글 요약을 입력하세요 (최대 500자)"
+              rows="3"></textarea>
           <div style="text-align: right; margin-top: 4px;">
             <small style="color: var(--text-secondary); font-size: 12px;">
               <span id="summaryCount">0</span> / 500자
@@ -269,7 +266,7 @@
 
         <!-- 마크다운 에디터 -->
         <div class="form-group">
-          <label class="form-label">내용 *</label>
+          <label class="form-label" for="markdownEditor">내용 *</label>
           <textarea id="markdownEditor"></textarea>
         </div>
 
@@ -278,11 +275,11 @@
           <label class="form-label">게시 상태</label>
           <div class="radio-group">
             <label class="radio-label">
-              <input type="radio" name="status" value="published" checked>
+              <input checked name="status" type="radio" value="PUBLISHED">
               <span>게시</span>
             </label>
             <label class="radio-label">
-              <input type="radio" name="status" value="draft">
+              <input name="status" type="radio" value="DRAFT">
               <span>임시저장</span>
             </label>
           </div>
@@ -308,8 +305,8 @@
 
         <!-- 액션 버튼 -->
         <div class="form-actions">
-          <button type="button" class="btn btn-secondary" id="cancelBtn">취소</button>
-          <button type="submit" class="btn btn-primary">게시하기</button>
+          <button class="btn btn-secondary" id="cancelBtn" type="button">취소</button>
+          <button class="btn btn-primary" type="submit">게시하기</button>
         </div>
       </form>
     </div>
@@ -317,12 +314,24 @@
 </main>
 <th:block layout:fragment="scripts">
   <!-- EasyMDE -->
-  <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+  <script th:src="@{/js/EasyMDE/easymde.min.js}"></script>
   <!-- 페이지 JavaScript -->
   <script>
     let easyMDE;
     let tags = [];
     let autoSaveTimer;
+    let originalTags;
+    fetch('/api/tags', {
+      method: 'GET',
+      cache: 'no-cache',
+    }).then(response => response.json())
+    .then(data => {
+      originalTags = data;
+    })
+    .catch(error => {
+      console.error('Error fetching tags:', error)
+      return [];
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
       // EasyMDE 초기화
@@ -408,16 +417,10 @@
         }
       });
 
-      // 폼 제출
-      document.getElementById('postForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        savePost();
-      });
-
       // 취소 버튼
       document.getElementById('cancelBtn').addEventListener('click', () => {
         if (confirm('작성 중인 내용이 저장되지 않을 수 있습니다. 정말 취소하시겠습니까?')) {
-          window.location.href = 'admin-posts-list.html';
+          window.location.href = '/admin/posts';
         }
       });
     });
@@ -487,12 +490,25 @@
     function addTag() {
       const tagInput = document.getElementById('tagInput');
       const value = tagInput.value.trim().replace(/,/g, '');
-
-      if (value && !tags.includes(value)) {
-        tags.push(value);
-        renderTags();
+      const slug = generateSlug(value);
+      if (!value || !slug || tags.some(t => t.slug === slug)) {
         tagInput.value = '';
+        tagInput.focus();
+        return;
       }
+      const tag = {
+        name: value,
+        slug: slug,
+      }
+      const found = originalTags.find(t => t.slug === tag.slug);
+      if (found) {
+        tag.id = found.id;
+        tag.name = found.name;
+        tag.slug = found.slug;
+      }
+      tags.push(tag);
+      tagInput.value = '';
+      renderTags();
     }
 
     // 태그 제거
@@ -506,28 +522,35 @@
       const tagsContainer = document.getElementById('tagsContainer');
       const tagInput = document.getElementById('tagInput');
 
-      const tagElements = tags.map((tag, index) => `
-                <span class="tag">
-                    ${tag}
+      tagsContainer.innerHTML = tags.map((tag, index) => {
+        return `
+                <span class="tag" data-id="${tag.id ? tag.id : 'new'}">
+                    ${tag.name}
                     <span class="tag-remove" onclick="removeTag(${index})">×</span>
                 </span>
-            `).join('');
-
-      tagsContainer.innerHTML = tagElements;
+            `
+      }).join('');
       tagsContainer.appendChild(tagInput);
+      tagInput.focus();
     }
 
+    // 폼 제출
+    document.getElementById('postForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      savePost();
+    });
+
     // 게시글 저장
-    function savePost() {
+    async function savePost() {
       const title = document.getElementById('postTitle').value;
       const slug = document.getElementById('postSlug').value;
       const summary = document.getElementById('postSummary').value;
-      const category = document.getElementById('postCategory').value;
+      const categoryId = document.getElementById('postCategory').value || null;
       const content = easyMDE.value();
       const status = document.querySelector('input[name="status"]:checked').value;
 
       // 유효성 검사
-      if (!title || !slug || !summary || !category || !content) {
+      if (!title || !slug || !content) {
         alert('필수 항목을 모두 입력해주세요.');
         return;
       }
@@ -548,21 +571,52 @@
         return;
       }
 
+      // 새 태그를 먼저 모두 생성한 뒤 tagIds 수집
+      const tagIds = [];
+      for (const tag of tags) {
+        if (!tag.id || tag.id === 'new') {
+          const tagResponse = await fetch('/api/tags', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: tag.name, slug: tag.slug})
+          });
+          if (!tagResponse.ok) {
+            alert(`태그 '${tag.name}' 생성에 실패했습니다.`);
+            return;
+          }
+          const created = await tagResponse.json();
+          tagIds.push(created.id);
+        } else {
+          tagIds.push(tag.id);
+        }
+      }
+
       const data = {
         title,
+        categoryId,
         slug,
         summary,
-        category,
-        tags,
+        tagIds,
         content,
-        status
+        status,
+        author: 'hgkimer@gmail.com'
       };
 
-      console.log('게시글 저장:', data);
-      alert('게시글이 저장되었습니다.');
+      const postResponse = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
 
-      // 저장 후 목록으로 이동
-      // window.location.href = 'admin-posts-list.html';
+      if (!postResponse.ok) {
+        alert('게시글 저장에 실패했습니다.');
+        return;
+      }
+
+      const saved = await postResponse.json();
+      console.log('게시글 저장:', saved);
+      alert('게시글이 저장되었습니다.');
+      window.location.href = '/admin/posts?_=' + new Date().getTime();
     }
 
     // Window에 함수 노출

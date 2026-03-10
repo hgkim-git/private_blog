@@ -22,7 +22,7 @@ public record PostCreateDto(
     @NotBlank(message = "Status cannot be empty.")
     @Pattern(regexp = "^(DRAFT|PUBLISHED)$", message = "Status must be either DRAFT or PUBLISHED.")
     String status,
-    List<Long> tagsIds
+    List<Long> tagIds
 ) {
 
 }

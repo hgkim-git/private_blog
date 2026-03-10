@@ -1,6 +1,7 @@
 package io.github.hgkimer.privateblog.web.controller;
 
 import io.github.hgkimer.privateblog.service.CategoryService;
+import io.github.hgkimer.privateblog.service.MarkdownService;
 import io.github.hgkimer.privateblog.service.PostService;
 import io.github.hgkimer.privateblog.web.dto.response.CategoryResponseDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostDetailResponseDto;
@@ -27,6 +28,7 @@ public class BlogController {
 
   private final PostService postService;
   private final CategoryService categoryService;
+  private final MarkdownService markdownService;
 
   @GetMapping("/posts")
   public String posts(
@@ -48,15 +50,20 @@ public class BlogController {
     List<CategoryResponseDto> categories = categoryService.getAllCategories();
     model.addAttribute("categories", categories);
 
-    StringBuilder sb = new StringBuilder();
-    sb.append("/posts?");
+    StringBuilder queryParams = new StringBuilder();
     if (categorySlug != null) {
-      sb.append("categorySlug=").append(categorySlug);
+      queryParams.append("categorySlug=").append(categorySlug);
     }
     if (keyword != null) {
-      sb.append("&keyword=").append(keyword).append('&');
+      if (!queryParams.isEmpty()) {
+        queryParams.append("&");
+      }
+      queryParams.append("keyword=").append(keyword);
     }
-    model.addAttribute("baseURL", sb.toString());
+    if (!queryParams.isEmpty()) {
+      queryParams.append("&");
+    }
+    model.addAttribute("baseURL", "/posts?" + queryParams.toString());
     return "blog/main";
   }
 
@@ -65,6 +72,8 @@ public class BlogController {
       Model model) {
     PostDetailResponseDto post = postService.getPostBySlug(slug);
     model.addAttribute("post", post);
+    String contentHtml = post.content();
+    model.addAttribute("tocHtml", markdownService.getTocHtml(contentHtml));
     return "blog/post-detail";
   }
 }

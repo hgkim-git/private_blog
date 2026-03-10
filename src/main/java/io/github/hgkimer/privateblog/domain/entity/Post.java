@@ -58,6 +58,9 @@ public class Post extends BaseTimeEntity {
   @Column(name = "content", nullable = false, columnDefinition = "TEXT")
   private String content;
 
+  @Column(name = "content_html", nullable = false, columnDefinition = "TEXT")
+  private String contentHtml;
+
   @Column(name = "summary", length = 500)
   private String summary;
 
@@ -72,23 +75,26 @@ public class Post extends BaseTimeEntity {
   private Integer viewCount = 0;
 
   @Builder
-  public Post(Category category, User author, String title, String content, String summary,
+  public Post(Category category, User author, String title, String content, String contentHtml,
+      String summary,
       String slug, PostStatus status) {
     this.category = category;
     this.author = author;
     this.title = title;
     this.content = content;
+    this.contentHtml = contentHtml;
     this.summary = summary;
     this.slug = slug;
     this.status = status;
   }
 
   public static Post of(Category category, User author, String title, String content,
+      String contentHtml,
       String summary, String slug, PostStatus status) {
     if (author == null) {
       throw new IllegalArgumentException("author must not be null");
     }
-    return new Post(category, author, title, content, summary, slug, status);
+    return new Post(category, author, title, content, contentHtml, summary, slug, status);
   }
 
   public void publish() {
@@ -114,10 +120,12 @@ public class Post extends BaseTimeEntity {
     this.viewCount++;
   }
 
-  public void update(String title, String content, String summary, String slug, String status,
+  public void update(String title, String content, String contentHtml, String summary, String slug,
+      String status,
       Category category) {
     this.title = title;
     this.content = content;
+    this.contentHtml = contentHtml;
     this.summary = summary;
     this.slug = slug;
     this.category = category;

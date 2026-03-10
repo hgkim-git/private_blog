@@ -150,7 +150,7 @@ class PostRepositoryTest {
   @Test
   void givenKeyword_WhenFindAllPosts_thenReturnFilteredPage() {
     for (int i = 0; i < 5; i++) {
-      Post post = Post.of(category, author, "테스트 게시글" + i, "테스트 본문", "요약", "test-slug" + i,
+      Post post = Post.of(category, author, "테스트 게시글" + i, "테스트 본문", "", "요약", "test-slug" + i,
           PostStatus.PUBLISHED);
       postRepository.save(post);
     }
@@ -165,13 +165,13 @@ class PostRepositoryTest {
   @Test
   void givenCategoryId_whenFindAllPostsByCategoryId_thenReturnPage() {
     for (int i = 0; i < 5; i++) {
-      Post post = Post.of(category, author, "카테고리 속한 게시글" + i, "테스트 본문", "요약",
+      Post post = Post.of(category, author, "카테고리 속한 게시글" + i, "테스트 본문", "", "요약",
           "test-slug" + i,
           PostStatus.PUBLISHED);
       postRepository.save(post);
     }
     for (int i = 5; i < 10; i++) {
-      Post post = Post.of(null, author, "일반 테스트 게시글" + i, "테스트 본문", "요약",
+      Post post = Post.of(null, author, "일반 테스트 게시글" + i, "테스트 본문", "", "요약",
           "test-slug" + i,
           PostStatus.PUBLISHED);
       postRepository.save(post);

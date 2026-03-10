@@ -1,7 +1,12 @@
 package io.github.hgkimer.privateblog.web.controller;
 
+import io.github.hgkimer.privateblog.domain.entity.Tag;
+import io.github.hgkimer.privateblog.service.CategoryService;
+import io.github.hgkimer.privateblog.service.TagService;
+import io.github.hgkimer.privateblog.web.dto.response.CategoryResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/admin")
 @Validated
 public class AdminController {
+
+  private final CategoryService categoryService;
+  private final TagService tagService;
 
   @ModelAttribute("currentUri")
   public String currentUri(HttpServletRequest request) {
@@ -39,8 +47,12 @@ public class AdminController {
   }
 
   @GetMapping("/posts/form")
-  public String newPostForm(Model model) {
-    return "admin/new-post-form";
+  public String postForm(Model model) {
+    List<CategoryResponseDto> categories = categoryService.getAllCategories();
+    model.addAttribute("categories", categories);
+    List<Tag> tags = tagService.getAllTags();
+    model.addAttribute("tags", tags);
+    return "admin/post-form";
   }
 
   @GetMapping("/categories")

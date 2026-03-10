@@ -7,6 +7,7 @@ import io.github.hgkimer.privateblog.web.dto.request.TagUpdateDto;
 import io.github.hgkimer.privateblog.web.dto.response.TagResponseDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +53,13 @@ public class TagApiController {
   @GetMapping("/{id}")
   public ResponseEntity<TagResponseDto> getTagById(@PathVariable @Positive Long id) {
     TagResponseDto responseDto = TagResponseDto.from(tagService.getTagById(id));
+    return ResponseEntity.ok(responseDto);
+  }
+
+  @GetMapping()
+  public ResponseEntity<List<TagResponseDto>> getAllTags() {
+    List<TagResponseDto> responseDto = tagService.getAllTags().stream()
+        .map(TagResponseDto::from).toList();
     return ResponseEntity.ok(responseDto);
   }
 

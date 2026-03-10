@@ -10,5 +10,7 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
 
   List<Tag> findTagByIdIn(List<Long> ids);
 
+  List<Tag> findAllByOrderByNameAsc();
+
 
 }

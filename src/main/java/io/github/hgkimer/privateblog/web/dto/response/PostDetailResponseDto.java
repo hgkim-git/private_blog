@@ -30,7 +30,7 @@ public record PostDetailResponseDto(
         post.getAuthor().getEmail(),
         category.map(CategoryResponseDto::from).orElse(null),
         post.getTitle(),
-        post.getContent(),
+        post.getContentHtml(),
         post.getSummary(),
         post.getSlug(),
         post.getStatus().name(),

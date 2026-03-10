@@ -13,26 +13,7 @@
     <aside class="toc-sidebar">
       <a class="back-to-list" th:href="@{/}">← 목록으로</a>
       <h3 class="toc-title">목차</h3>
-      <ul class="toc-list">
-        <!--<li class="toc-item">
-          <a href="#intro" class="toc-link active">들어가며</a>
-        </li>
-        <li class="toc-item">
-          <a href="#setup" class="toc-link">프로젝트 설정</a>
-        </li>
-        <li class="toc-item">
-          <a href="#jwt" class="toc-link">JWT 토큰 생성</a>
-        </li>
-        <li class="toc-item">
-          <a href="#security" class="toc-link">Security 설정</a>
-        </li>
-        <li class="toc-item">
-          <a href="#filter" class="toc-link">JWT 필터 구현</a>
-        </li>
-        <li class="toc-item">
-          <a href="#conclusion" class="toc-link">마치며</a>
-        </li>-->
-      </ul>
+      <ul class="toc-list" th:utext="${tocHtml}"></ul>
     </aside>
 
     <!-- Main Content -->

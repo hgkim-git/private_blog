@@ -4,6 +4,7 @@ import io.github.hgkimer.privateblog.domain.entity.Tag;
 import io.github.hgkimer.privateblog.persistence.jpa.TagRepository;
 import io.github.hgkimer.privateblog.web.exception.ErrorCode;
 import io.github.hgkimer.privateblog.web.exception.ResourceNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,11 @@ public class TagService {
     return tagRepository.findById(id)
         .orElseThrow(
             () -> new ResourceNotFoundException(ErrorCode.TAG_NOT_FOUND, id.toString()));
+  }
+
+  @Transactional(readOnly = true)
+  public List<Tag> getAllTags() {
+    return tagRepository.findAllByOrderByNameAsc();
   }
 
 }
