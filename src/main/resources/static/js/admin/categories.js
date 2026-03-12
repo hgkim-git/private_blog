@@ -1,4 +1,4 @@
-import {slugify} from "/js/admin/slug.js";
+import {slugify} from "/js/utils/slug.js";
 
 // Slug 자동 생성
 const newCategoryName = document.getElementById('newCategoryName');
