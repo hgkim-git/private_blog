@@ -35,6 +35,11 @@
       border-color: var(--border-color);
     }
 
+    [data-theme="dark"] .EasyMDEContainer .editor-toolbar button.active {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-color);
+    }
+
     [data-theme="dark"] .EasyMDEContainer .editor-statusbar {
       background-color: var(--bg-primary);
       color: var(--text-secondary);
@@ -43,6 +48,26 @@
 
     [data-theme="dark"] .EasyMDEContainer .CodeMirror-cursor {
       border-left-color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .EasyMDEContainer .CodeMirror-selected {
+      background-color: #2A4A7F !important;
+    }
+
+    [data-theme="dark"] .EasyMDEContainer .CodeMirror-focused .CodeMirror-selected {
+      background-color: #3A6BC4 !important;
+    }
+
+    [data-theme="dark"] .EasyMDEContainer .CodeMirror-line::selection,
+    [data-theme="dark"] .EasyMDEContainer .CodeMirror-line > span::selection,
+    [data-theme="dark"] .EasyMDEContainer .CodeMirror-line > span > span::selection {
+      background-color: #3A6BC4;
+    }
+
+    [data-theme="dark"] .EasyMDEContainer .CodeMirror-line::-moz-selection,
+    [data-theme="dark"] .EasyMDEContainer .CodeMirror-line > span::-moz-selection,
+    [data-theme="dark"] .EasyMDEContainer .CodeMirror-line > span > span::-moz-selection {
+      background-color: #3A6BC4;
     }
 
     /* 태그 입력 */
@@ -131,14 +156,6 @@
 
     .status-icon {
       font-size: 12px;
-    }
-
-    .status-icon.saving {
-      color: var(--color-warning);
-    }
-
-    .status-icon.saved {
-      color: var(--color-success);
     }
 
     /* 라디오 버튼 그룹 */
