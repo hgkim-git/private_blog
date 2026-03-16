@@ -243,7 +243,8 @@ class PostServiceTest {
     }
     Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "createdAt");
     Pageable pageable = PageRequest.of(0, 10, sort);
-    Page<PostSummaryResponseDto> page = postService.getPostList(null, pageable);
+    Page<PostSummaryResponseDto> page = postService.getAllPosts(null, PostStatus.PUBLISHED, null,
+        pageable);
     assertThat(page).isNotNull();
     assertThat(page.getTotalElements()).isEqualTo(5);
     assertThat(page.getTotalPages()).isEqualTo(1);
@@ -267,8 +268,9 @@ class PostServiceTest {
     }
     Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "createdAt");
     Pageable pageable = PageRequest.of(0, 10, sort);
-    Page<PostSummaryResponseDto> page = postService.getCategorizedPostList(
-        category.getSlug(),
+    Page<PostSummaryResponseDto> page = postService.getAllPosts(
+        category.getId(),
+        PostStatus.PUBLISHED,
         null,
         pageable);
     assertThat(page).isNotNull();
@@ -296,7 +298,8 @@ class PostServiceTest {
     String keyword = "키워드";
     Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "createdAt");
     Pageable pageable = PageRequest.of(0, 10, sort);
-    Page<PostSummaryResponseDto> page = postService.getPostList(keyword, pageable);
+    Page<PostSummaryResponseDto> page = postService.getAllPosts(null, PostStatus.PUBLISHED, keyword,
+        pageable);
     assertThat(page).isNotNull();
     assertThat(page.getTotalElements()).isEqualTo(5);
     assertThat(page.getTotalPages()).isEqualTo(1);

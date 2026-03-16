@@ -1,6 +1,8 @@
 package io.github.hgkimer.privateblog.web.controller;
 
 
+import io.github.hgkimer.privateblog.domain.enums.PostStatus;
+import io.github.hgkimer.privateblog.service.CategoryService;
 import io.github.hgkimer.privateblog.service.PostService;
 import io.github.hgkimer.privateblog.web.dto.request.PostCreateDto;
 import io.github.hgkimer.privateblog.web.dto.request.PostUpdateDto;
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostApiController {
 
   private final PostService postService;
+  private final CategoryService categoryService;
 
   @PostMapping()
   public ResponseEntity<PostDetailResponseDto> createPost(
@@ -72,13 +75,17 @@ public class PostApiController {
   @GetMapping("")
   public ResponseEntity<Page<PostSummaryResponseDto>> getPosts(
       @RequestParam(required = false) @Pattern(regexp = "^[a-z0-9-]+$") String categorySlug,
+      @RequestParam(required = false) @Pattern(regexp = "^(?i)(DRAFT|PUBLISHED)$") String statusText,
       @RequestParam(required = false) @Size(max = 50) String keyword,
       // size=10(default), page=0(default)
       @PageableDefault(direction = Sort.Direction.DESC, sort = "createdAt")
       Pageable pageable
   ) {
-    Page<PostSummaryResponseDto> list = categorySlug == null ? postService.getPostList(keyword,
-        pageable) : postService.getCategorizedPostList(categorySlug, keyword, pageable);
+    Long categoryId =
+        (categorySlug != null) ? categoryService.getCategoryBySlug(categorySlug).getId() : null;
+    PostStatus status = (statusText != null) ? PostStatus.valueOf(statusText.toUpperCase()) : null;
+    Page<PostSummaryResponseDto> list = postService.getAllPosts(categoryId, status, keyword,
+        pageable);
     return ResponseEntity.ok(list);
   }
 

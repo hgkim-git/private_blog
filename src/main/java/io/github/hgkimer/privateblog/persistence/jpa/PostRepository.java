@@ -30,37 +30,20 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   @Query(value = "SELECT p FROM Post p "
       + "LEFT JOIN FETCH p.category "
       + "JOIN FETCH p.author "
-      + "WHERE p.status = :status "
+      + "WHERE (:categoryId IS NULL OR p.category.id = :categoryId) "
+      + "AND (:status IS NULL OR p.status = :status) "
       + "AND (:keyword IS NULL OR "
       + "    (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
       + "     LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')))) ",
       countQuery = "SELECT COUNT(p) FROM Post p "
-          + "WHERE p.status = :status "
+          + "WHERE (:categoryId IS NULL OR p.category.id = :categoryId) "
+          + "AND (:status IS NULL OR p.status = :status) "
           + "AND (:keyword IS NULL OR "
           + "    (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
           + "     LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')))) ")
   Page<Post> findAllPosts(
-      @Param("status") PostStatus status,
-      @Param("keyword") String keyword,
-      Pageable pageable);
-
-  @Query(value = "SELECT p FROM Post p "
-      + "LEFT JOIN FETCH p.category "
-      + "JOIN FETCH p.author "
-      + "WHERE p.status = :status "
-      + "AND p.category.id = :categoryId "
-      + "AND (:keyword IS NULL OR "
-      + "    (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
-      + "     LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')))) ",
-      countQuery = "SELECT COUNT(p) FROM Post p "
-          + "WHERE p.status = :status "
-          + "AND p.category.id = :categoryId "
-          + "AND (:keyword IS NULL OR "
-          + "    (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
-          + "     LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')))) ")
-  Page<Post> findAllPostsByCategoryId(
-      @Param("status") PostStatus status,
       @Param("categoryId") Long categoryId,
+      @Param("status") PostStatus status,
       @Param("keyword") String keyword,
       Pageable pageable);
 

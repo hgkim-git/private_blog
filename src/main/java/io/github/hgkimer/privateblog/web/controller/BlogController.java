@@ -1,5 +1,6 @@
 package io.github.hgkimer.privateblog.web.controller;
 
+import io.github.hgkimer.privateblog.domain.enums.PostStatus;
 import io.github.hgkimer.privateblog.service.CategoryService;
 import io.github.hgkimer.privateblog.service.MarkdownService;
 import io.github.hgkimer.privateblog.service.PostService;
@@ -32,16 +33,19 @@ public class BlogController {
 
   @GetMapping("/posts")
   public String posts(
-      @RequestParam(required = false) @Pattern(regexp = "^[a-z0-9-]+$") String categorySlug,
+      @RequestParam(required = false, name = "category") @Pattern(regexp = "^[a-z0-9-]+$") String categorySlug,
       @RequestParam(required = false) @Size(max = 50) String keyword,
       @PageableDefault(size = 10, direction = Sort.Direction.DESC, sort = "createdAt") Pageable pageable,
       Model model) {
-    Page<PostSummaryResponseDto> page = categorySlug == null ? postService.getPostList(keyword,
-        pageable) : postService.getCategorizedPostList(categorySlug, keyword, pageable);
-    int pagSetSize = 5;
-    int currentPage = page.getNumber();
-    int startPage = (currentPage / pagSetSize) * pagSetSize;
-    int endPage = Math.min(startPage + pagSetSize - 1, page.getTotalPages() - 1);
+    Long categoryId =
+        (categorySlug != null) ? categoryService.getCategoryBySlug(categorySlug).getId() : null;
+    Page<PostSummaryResponseDto> page = postService.getAllPosts(categoryId, PostStatus.PUBLISHED,
+        keyword, pageable);
+    int pageSetSize = 5;
+    int lastPageNum = page.getTotalPages() > 0 ? page.getTotalPages() - 1 : 0;
+    int currentPage = Math.min(page.getNumber(), lastPageNum);
+    int startPage = (currentPage / pageSetSize) * pageSetSize;
+    int endPage = Math.min(startPage + pageSetSize - 1, lastPageNum);
     model.addAttribute("posts", page.getContent());
     model.addAttribute("page", page);
     model.addAttribute("startPage", startPage);
@@ -52,7 +56,7 @@ public class BlogController {
 
     StringBuilder queryParams = new StringBuilder();
     if (categorySlug != null) {
-      queryParams.append("categorySlug=").append(categorySlug);
+      queryParams.append("category=").append(categorySlug);
     }
     if (keyword != null) {
       if (!queryParams.isEmpty()) {

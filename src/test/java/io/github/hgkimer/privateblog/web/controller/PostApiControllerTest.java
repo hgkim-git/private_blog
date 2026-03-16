@@ -214,7 +214,7 @@ class PostApiControllerTest {
   @Test
   void givenNoParam_whenGetAllPosts_thenResponseOk() {
     Page<PostSummaryResponseDto> page = new PageImpl<>(List.of());
-    given(postService.getPostList(any(), any())).willReturn(page);
+    given(postService.getAllPosts(any(), any(), any(), any())).willReturn(page);
 
     mockMvcTester.get().uri(uriRoot)
         .exchange()

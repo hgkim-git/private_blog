@@ -17,6 +17,7 @@ import io.github.hgkimer.privateblog.web.dto.response.PostSummaryResponseDto;
 import io.github.hgkimer.privateblog.web.exception.DuplicateResourceException;
 import io.github.hgkimer.privateblog.web.exception.ErrorCode;
 import io.github.hgkimer.privateblog.web.exception.ResourceNotFoundException;
+import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,7 +40,8 @@ public class PostService {
   private final MarkdownService markdownService;
 
   public Post createPost(PostCreateDto postCreateDto) {
-    validateUser(postCreateDto.author());
+//    TODO: Security
+//    validateUser(postCreateDto.author());
     if (postCreateDto.categoryId() != null) {
       validateCategory(postCreateDto.categoryId());
     }
@@ -48,7 +50,8 @@ public class PostService {
       throw new DuplicateResourceException(ErrorCode.DUPLICATE_POST_SLUG,
           postCreateDto.slug());
     }
-    User user = getRequiredUser(postCreateDto.author());
+    //TODO: Security
+    User user = getRequiredUser("hgkimer@gmail.com");
     Category category = getOptionalCategory(postCreateDto.categoryId());
     String htmlContent = markdownService.convertToHtml(postCreateDto.content());
     Post post = Post.of(
@@ -71,7 +74,7 @@ public class PostService {
     if (categoryId != null) {
       validateCategory(categoryId);
     }
-    validateTags(postUpdateDto.tagsIds());
+    validateTags(postUpdateDto.tagIds());
 
     Post post = postRepository.findByIdWithDetails(id);
     if (post == null) {
@@ -91,16 +94,23 @@ public class PostService {
         contentHtml,
         postUpdateDto.summary(),
         postUpdateDto.slug(),
-        postUpdateDto.status(),
+        postUpdateDto.status().toUpperCase(),
         category
     );
-    List<Tag> tags = tagRepository.findTagByIdIn(postUpdateDto.tagsIds());
+    List<Tag> tags = tagRepository.findTagByIdIn(postUpdateDto.tagIds());
     addTags(post, tags);
     return post;
   }
 
   public void deletePost(Long id) {
     postRepository.deleteById(id);
+  }
+
+  @Transactional(readOnly = true)
+  public PostDetailResponseDto getPostById(Long id) {
+    Post post = postRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.POST_NOT_FOUND, id.toString()));
+    return PostDetailResponseDto.from(post);
   }
 
   public PostDetailResponseDto getPostBySlug(String slug) {
@@ -111,20 +121,11 @@ public class PostService {
   }
 
   @Transactional(readOnly = true)
-  public Page<PostSummaryResponseDto> getCategorizedPostList(String categorySlug, String keyword,
+  public Page<PostSummaryResponseDto> getAllPosts(@Nullable Long categoryId,
+      @Nullable PostStatus status,
+      @Nullable String keyword,
       Pageable pageable) {
-    Long categoryId = categoryRepository.findBySlug(categorySlug)
-        .orElseThrow(
-            () -> new ResourceNotFoundException(ErrorCode.CATEGORY_NOT_FOUND, categorySlug))
-        .getId();
-    return postRepository.findAllPostsByCategoryId(PostStatus.PUBLISHED, categoryId, keyword,
-        pageable).map(PostSummaryResponseDto::from);
-  }
-
-  @Transactional(readOnly = true)
-  public Page<PostSummaryResponseDto> getPostList(String keyword,
-      Pageable pageable) {
-    return postRepository.findAllPosts(PostStatus.PUBLISHED, keyword, pageable).map(
+    return postRepository.findAllPosts(categoryId, status, keyword, pageable).map(
         PostSummaryResponseDto::from);
   }
 

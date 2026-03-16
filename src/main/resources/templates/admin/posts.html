@@ -46,31 +46,34 @@
   <div class="filters-section">
     <div class="filters-grid">
       <div class="filter-group">
-        <label class="filter-label">검색</label>
-        <input
-            class="filter-input"
-            id="searchInput"
-            placeholder="제목 또는 내용으로 검색..."
-            type="text"
-        >
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">카테고리</label>
+        <label class="filter-label" for="categoryFilter">카테고리</label>
         <select class="filter-select" id="categoryFilter">
           <option value="">전체</option>
-          <option value="spring">Spring</option>
-          <option value="java">Java</option>
-          <option value="database">Database</option>
-          <option value="devops">DevOps</option>
+          <option th:each="category : ${categories}" th:text="${category.name}"
+                  th:value="${category.slug}">Spring
+          </option>
         </select>
       </div>
       <div class="filter-group">
-        <label class="filter-label">상태</label>
+        <label class="filter-label" for="statusFilter">상태</label>
         <select class="filter-select" id="statusFilter">
           <option value="">전체</option>
           <option value="published">게시</option>
-          <option value="draft">임시저장</option>
+          <option value="draft">임시 저장</option>
         </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label" for="searchInput">검색</label>
+        <div class="filter-search-group">
+          <input
+              autofocus
+              class="filter-input"
+              id="searchInput"
+              placeholder="제목 또는 내용으로 검색..."
+              type="text"
+          >
+          <button class="btn btn-primary" id="searchBtn" type="button">검색</button>
+        </div>
       </div>
       <div class="filter-group">
         <label class="filter-label" style="opacity: 0;">버튼</label>
@@ -84,7 +87,8 @@
     <div class="table-header">
       <div>
         <span class="table-title">게시글 목록</span>
-        <span class="table-count" id="postCount">(28개)</span>
+        <span class="table-count" id="postCount"
+              th:text="'(' + ${page.totalElements} + '개)'">(28개)</span>
       </div>
       <div class="bulk-actions">
         <span class="table-count" id="selectedCount"></span>
@@ -99,6 +103,7 @@
         <thead>
         <tr>
           <th class="checkbox-col">
+            <label for="selectAll"></label>
             <input class="checkbox" id="selectAll" type="checkbox">
           </th>
           <th>제목</th>
@@ -110,111 +115,27 @@
         </tr>
         </thead>
         <tbody id="postsTableBody">
-        <tr>
+        <tr th:data-id="${post.id}" th:each="post : ${posts}">
           <td style="text-align: center;">
-            <input class="checkbox row-checkbox" data-id="1" type="checkbox">
+            <label>
+              <input class="checkbox row-checkbox" type="checkbox">
+            </label>
           </td>
           <td class="post-title-cell">
-            <a class="post-title-link" href="#">Spring Security와 JWT를 활용한 인증 시스템 구현</a>
+            <a class="post-title-link" href="#" th:text="${post.title}">Spring Security와 JWT를 활용한 인증
+              시스템 구현</a>
           </td>
-          <td>Spring</td>
-          <td><span class="status-badge published">게시</span></td>
-          <td>1,234</td>
-          <td>2024.01.15</td>
+          <td th:text="${post.category == null ? '' : post.category.name}">Spring</td>
+          <td th:switch="${post.status}">
+            <span class="status-badge published" th:case="'PUBLISHED'">게시</span>
+            <span class="status-badge draft" th:case="'DRAFT'">임시 저장</span>
+          </td>
+          <td th:text="${post.viewCount}">0</td>
+          <td th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd')}">2024.01.15</td>
           <td>
             <div class="actions-cell">
-              <button class="action-btn" onclick="editPost(1)">수정</button>
-              <button class="action-btn delete" onclick="deletePost(1)">삭제</button>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="text-align: center;">
-            <input class="checkbox row-checkbox" data-id="2" type="checkbox">
-          </td>
-          <td class="post-title-cell">
-            <a class="post-title-link" href="#">JPA N+1 문제 완벽 정리 및 해결 방법</a>
-          </td>
-          <td>Java</td>
-          <td><span class="status-badge published">게시</span></td>
-          <td>2,156</td>
-          <td>2024.01.12</td>
-          <td>
-            <div class="actions-cell">
-              <button class="action-btn" onclick="editPost(2)">수정</button>
-              <button class="action-btn delete" onclick="deletePost(2)">삭제</button>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="text-align: center;">
-            <input class="checkbox row-checkbox" data-id="3" type="checkbox">
-          </td>
-          <td class="post-title-cell">
-            <a class="post-title-link" href="#">MySQL 인덱스 설계 전략과 성능 최적화</a>
-          </td>
-          <td>Database</td>
-          <td><span class="status-badge published">게시</span></td>
-          <td>1,867</td>
-          <td>2024.01.10</td>
-          <td>
-            <div class="actions-cell">
-              <button class="action-btn" onclick="editPost(3)">수정</button>
-              <button class="action-btn delete" onclick="deletePost(3)">삭제</button>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="text-align: center;">
-            <input class="checkbox row-checkbox" data-id="4" type="checkbox">
-          </td>
-          <td class="post-title-cell">
-            <a class="post-title-link" href="#">Docker 컨테이너 배포 자동화 구축하기</a>
-          </td>
-          <td>DevOps</td>
-          <td><span class="status-badge draft">임시저장</span></td>
-          <td>0</td>
-          <td>2024.01.08</td>
-          <td>
-            <div class="actions-cell">
-              <button class="action-btn" onclick="editPost(4)">수정</button>
-              <button class="action-btn delete" onclick="deletePost(4)">삭제</button>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="text-align: center;">
-            <input class="checkbox row-checkbox" data-id="5" type="checkbox">
-          </td>
-          <td class="post-title-cell">
-            <a class="post-title-link" href="#">Redis를 활용한 Spring 애플리케이션 캐싱 전략</a>
-          </td>
-          <td>Spring</td>
-          <td><span class="status-badge published">게시</span></td>
-          <td>1,543</td>
-          <td>2024.01.08</td>
-          <td>
-            <div class="actions-cell">
-              <button class="action-btn" onclick="editPost(5)">수정</button>
-              <button class="action-btn delete" onclick="deletePost(5)">삭제</button>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="text-align: center;">
-            <input class="checkbox row-checkbox" data-id="6" type="checkbox">
-          </td>
-          <td class="post-title-cell">
-            <a class="post-title-link" href="#">Java Stream API 실전 활용법과 성능 고려사항</a>
-          </td>
-          <td>Java</td>
-          <td><span class="status-badge published">게시</span></td>
-          <td>987</td>
-          <td>2024.01.05</td>
-          <td>
-            <div class="actions-cell">
-              <button class="action-btn" onclick="editPost(6)">수정</button>
-              <button class="action-btn delete" onclick="deletePost(6)">삭제</button>
+              <button class="action-btn">수정</button>
+              <button class="action-btn delete">삭제</button>
             </div>
           </td>
         </tr>
@@ -223,14 +144,22 @@
     </div>
 
     <!-- Pagination -->
-    <div class="pagination">
-      <button class="page-btn" disabled>이전</button>
-      <button class="page-btn active">1</button>
-      <button class="page-btn">2</button>
-      <button class="page-btn">3</button>
-      <button class="page-btn">4</button>
-      <button class="page-btn">5</button>
-      <button class="page-btn">다음</button>
+    <div class="pagination" th:unless="${#lists.isEmpty(posts)}">
+      <a class="page-btn"
+         th:href="${baseURL + 'page=0'}">처음</a>
+      <a class="page-btn"
+         th:href="${baseURL + 'page=' + (page.number - 1)}"
+         th:if="${page.hasPrevious()}">이전</a>
+      <a class="page-btn"
+         th:classappend="${i == page.number} ? 'active'"
+         th:each="i : ${#numbers.sequence(startPage, endPage)}"
+         th:href="${baseURL + 'page=' + i}"
+         th:text="${i + 1}">1</a>
+      <a class="page-btn"
+         th:href="${baseURL + 'page=' + (page.number + 1)}"
+         th:if="${page.hasNext()}">다음</a>
+      <a class="page-btn"
+         th:href="${baseURL + 'page=' + (page.totalPages - 1)}">마지막</a>
     </div>
   </div>
 </main>

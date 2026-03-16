@@ -1,5 +1,6 @@
 import {slugify} from "/js/utils/slug.js";
 import {api} from "/js/utils/api.js";
+import {goTo} from "/js/utils/nav.js";
 
 function initEasyMDE() {
   const options = {
@@ -34,18 +35,42 @@ try {
 }
 
 const tags = [];
+const tagElem = document.querySelectorAll('span.tag');
+tagElem.forEach(elem => {
+  const id = parseInt(elem.getAttribute('data-id'));
+  const found = originalTags.find(t => t.id === id);
+  if (!isNaN(id) && found) {
+    tags.push({
+      id: found.id,
+      name: found.name,
+      slug: found.slug,
+    });
+  }
+});
 
 // 이벤트 바인딩
-document.getElementById('postSlug').addEventListener('input', countSlug);
-document.getElementById('postSlug').addEventListener('compositionend',
-    countSlug);
-document.getElementById('postSummary').addEventListener('input', countSummary);
+const postSlugInput = document.getElementById('postSlug');
+['input', 'compositionend'].forEach(
+    event => postSlugInput.addEventListener(event, handleSlugInput));
+if (postSlugInput.value.length > 0) {
+  postSlugInput.dispatchEvent(new Event('input'));
+}
+
+const summaryInput = document.getElementById('postSummary')
+summaryInput.addEventListener('input', handleSummaryInput);
+if (summaryInput.value.length > 0) {
+  summaryInput.dispatchEvent(new Event('input'));
+}
 document.getElementById('postTitle').addEventListener('blur', createAutoSlug);
-document.getElementById('tagInput').addEventListener('keydown', onTagInput);
+document.getElementById('tagInput').addEventListener('keydown', handleTagInput);
+const postContent = document.getElementById('markdownEditor');
+if (postContent.value.length > 0) {
+  updateStats();
+}
 document.getElementById('cancelBtn').addEventListener('click', onCancel);
-document.getElementById('postForm').addEventListener('submit', (e) => {
+document.getElementById('postForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  savePost();
+  await savePost();
 });
 document.getElementById('tagsContainer').addEventListener('click', (e) => {
   const removeBtn = e.target.closest('.tag-remove');
@@ -54,25 +79,25 @@ document.getElementById('tagsContainer').addEventListener('click', (e) => {
   }
 });
 
-// Slug 글자 수 카운터
-function countSlug(e) {
-  if (e.isComposing) {
+function handleSlugInput(event) {
+  if (event.isComposing) {
     return;
   }
-  const slugCount = document.getElementById('slugCount');
-  e.target.value = e.target.value
+  const input = event.target;
+  const content = input.value
   .toLowerCase()
   .replace(/[^a-z0-9-]/g, '')
   .replace(/--+/g, '-'); // 연속된 하이픈 제거
-  slugCount.textContent = e.target.value.length;
-  markExceeded(e.target.value, 250, slugCount);
+  input.value = content
+  const slugCount = document.getElementById('slugCount');
+  count(content, 250, slugCount);
 }
 
 // Summary 글자 수 카운터
-function countSummary(e) {
+function handleSummaryInput(event) {
+  const text = event.target.value;
   const summaryCount = document.getElementById('summaryCount');
-  summaryCount.textContent = e.target.value.length;
-  markExceeded(e.target.value, 500, summaryCount);
+  count(text, 500, summaryCount);
 }
 
 // 제목에서 Slug 자동 생성 (Slug가 비어있을 때만)
@@ -88,20 +113,13 @@ function createAutoSlug(e) {
 }
 
 // 태그 입력 처리
-function onTagInput(e) {
+function handleTagInput(e) {
   if (e.key === 'Enter' || e.key === ',') {
     e.preventDefault();
     addTag();
   } else if (e.key === 'Backspace' && e.target.value === '' && tags.length
       > 0) {
     removeTag(tags.length - 1);
-  }
-}
-
-// 취소 버튼
-function onCancel() {
-  if (confirm('작성 중인 내용이 저장되지 않을 수 있습니다. 정말 취소하시겠습니까?')) {
-    window.location.href = '/admin/posts';
   }
 }
 
@@ -159,6 +177,15 @@ function updateStats() {
   document.getElementById('wordCount').textContent = `${content.length}자`;
 }
 
+// 취소 버튼
+function onCancel() {
+  if (confirm('작성 중인 내용이 저장되지 않을 수 있습니다. 정말 취소하시겠습니까?')) {
+    goTo('/admin/posts', {
+      cache: false,
+    });
+  }
+}
+
 // 게시글 저장
 async function savePost() {
   const title = document.getElementById('postTitle').value;
@@ -205,25 +232,36 @@ async function savePost() {
   }
 
   try {
-    await api.post('/api/posts', {
-      title,
+    const postId = new URL(window.location.href).searchParams.get('id');
+    const method = postId ? 'patch' : 'post';
+    const url = postId ? `/api/posts/${postId}` : '/api/posts';
+    const params = {
       categoryId,
+      title,
       slug,
       summary,
       tagIds,
       content,
       status,
-      author: 'hgkimer@gmail.com'
-    })
+    };
+    await api[method](url, params);
   } catch (error) {
     alert('게시글 저장에 실패했습니다.');
     return;
   }
   alert('게시글이 저장되었습니다.');
-  window.location.href = '/admin/posts?_=' + new Date().getTime();
+  goTo('/admin/posts', {
+    cache: false,
+  });
 }
 
-function markExceeded(str, limit, elem) {
-  elem.style.color = str.length >= limit ? 'var(--color-danger)'
+function count(text, limit, elem) {
+  elem.textContent = text.length;
+  const isExceeded = text.length >= limit;
+  markExceeded(isExceeded, elem);
+}
+
+function markExceeded(isExceeded, elem) {
+  elem.style.color = isExceeded ? 'var(--color-danger)'
       : 'var(--text-secondary)';
 }

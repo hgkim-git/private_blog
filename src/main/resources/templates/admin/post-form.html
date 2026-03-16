@@ -218,6 +218,7 @@
               id="postTitle"
               placeholder="게시글 제목을 입력하세요"
               required
+              th:value="${post != null ? post.title : ''}"
               type="text"
           >
         </div>
@@ -228,7 +229,10 @@
           <select class="form-select" id="postCategory">
             <option value="">카테고리를 선택하세요</option>
             <option th:each="category : ${categories}"
-                    th:text="${category.name}" th:value="${category.id}">Spring
+                    th:selected="${post != null and post.category != null and post.category.id == category.id}"
+                    th:text="${category.name}"
+                    th:value="${category.id}">
+              Spring
             </option>
           </select>
         </div>
@@ -245,6 +249,7 @@
               maxlength="250"
               placeholder="spring-security-jwt-authentication"
               required
+              th:value="${post != null ? post.slug : ''}"
               type="text"
           >
           <div style="display: flex; justify-content: space-between; margin-top: 4px;">
@@ -252,7 +257,8 @@
               영문 소문자, 숫자, 하이픈(-)만 입력 가능
             </small>
             <small style="color: var(--text-secondary); font-size: 12px;">
-              <span id="slugCount">0</span> / 250자
+              <span id="slugCount">0</span> /
+              250자
             </small>
           </div>
         </div>
@@ -261,6 +267,14 @@
         <div class="form-group">
           <label class="form-label" for="tagInput">태그</label>
           <div class="tags-container" id="tagsContainer">
+            <th:block th:if="${post != null and #lists.size(post.tags) > 0}">
+              <span class="tag"
+                    th:data-id="${tag.id}"
+                    th:data-index="${stat.index}"
+                    th:each="tag, stat : ${post.tags}"
+                    th:text="${tag.name}">Spring Security</span>
+            </th:block>
+
             <input
                 class="tag-input"
                 id="tagInput"
@@ -281,7 +295,8 @@
               id="postSummary"
               maxlength="500"
               placeholder="게시글 요약을 입력하세요 (최대 500자)"
-              rows="3"></textarea>
+              rows="3"
+              th:text="${post != null ? post.summary : ''}"></textarea>
           <div style="text-align: right; margin-top: 4px;">
             <small style="color: var(--text-secondary); font-size: 12px;">
               <span id="summaryCount">0</span> / 500자
@@ -292,20 +307,26 @@
         <!-- 마크다운 에디터 -->
         <div class="form-group">
           <label class="form-label" for="markdownEditor">내용 *</label>
-          <textarea id="markdownEditor"></textarea>
+          <textarea id="markdownEditor" th:text="${post != null ? post.content : ''}"></textarea>
         </div>
 
         <!-- 게시 상태 -->
         <div class="form-group">
           <label class="form-label">게시 상태</label>
           <div class="radio-group">
-            <label class="radio-label">
-              <input checked name="status" type="radio" value="PUBLISHED">
+            <label class="radio-label" for="status-published">
+              <input id="status-published" name="status"
+                     th:checked="${post != null and #strings.equalsIgnoreCase(post.status, 'PUBLISHED')}"
+                     type="radio"
+                     value="published">
               <span>게시</span>
             </label>
-            <label class="radio-label">
-              <input name="status" type="radio" value="DRAFT">
-              <span>임시저장</span>
+            <label class="radio-label" for="status-draft">
+              <input id="status-draft" name="status"
+                     th:checked="${post == null or #strings.equalsIgnoreCase(post.status, 'DRAFT')}"
+                     type="radio"
+                     value="draft">
+              <span>임시 저장</span>
             </label>
           </div>
         </div>

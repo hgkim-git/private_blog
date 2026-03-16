@@ -43,4 +43,9 @@ public class CategoryService {
         ErrorCode.CATEGORY_NOT_FOUND, id.toString()));
   }
 
+  public Category getCategoryBySlug(String slug) {
+    return categoryRepository.findBySlug(slug).orElseThrow(() -> new ResourceNotFoundException(
+        ErrorCode.CATEGORY_NOT_FOUND, slug));
+  }
+
 }

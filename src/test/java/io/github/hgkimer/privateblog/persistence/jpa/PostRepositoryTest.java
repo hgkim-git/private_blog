@@ -118,7 +118,7 @@ class PostRepositoryTest {
       postRepository.save(post);
     }
     entityManager.flush();
-    Page<Post> page = postRepository.findAllPosts(PostStatus.PUBLISHED, null,
+    Page<Post> page = postRepository.findAllPosts(null, PostStatus.PUBLISHED, null,
         Pageable.ofSize(10));
     assertThat(page).hasSize(10);
     assertThat(page).allMatch(p -> p.getStatus() == PostStatus.PUBLISHED);
@@ -136,12 +136,12 @@ class PostRepositoryTest {
       postRepository.save(post);
     }
     entityManager.flush();
-    Page<Post> draftPosts = postRepository.findAllPosts(PostStatus.DRAFT, null,
+    Page<Post> draftPosts = postRepository.findAllPosts(null, PostStatus.DRAFT, null,
         Pageable.ofSize(10));
     assertThat(draftPosts).hasSize(5);
     assertThat(draftPosts).allMatch(p -> p.getStatus() == PostStatus.DRAFT);
 
-    Page<Post> publishedPosts = postRepository.findAllPosts(PostStatus.PUBLISHED, null,
+    Page<Post> publishedPosts = postRepository.findAllPosts(null, PostStatus.PUBLISHED, null,
         Pageable.ofSize(10));
     assertThat(publishedPosts).hasSize(5);
     assertThat(publishedPosts).allMatch(p -> p.getStatus() == PostStatus.PUBLISHED);
@@ -156,7 +156,7 @@ class PostRepositoryTest {
     }
     entityManager.flush();
     String keyword = "테스트";
-    Page<Post> filteredPosts = postRepository.findAllPosts(PostStatus.PUBLISHED, keyword,
+    Page<Post> filteredPosts = postRepository.findAllPosts(null, PostStatus.PUBLISHED, keyword,
         Pageable.ofSize(10));
     assertThat(filteredPosts).hasSize(5);
     assertThat(filteredPosts).allMatch(p -> p.getTitle().contains(keyword));
@@ -178,10 +178,8 @@ class PostRepositoryTest {
     }
     entityManager.flush();
 
-    Page<Post> postsByCategoryId = postRepository.findAllPostsByCategoryId(PostStatus.PUBLISHED,
-        category.getId(),
-        null,
-        Pageable.ofSize(10));
+    Page<Post> postsByCategoryId = postRepository.findAllPosts(category.getId(),
+        PostStatus.PUBLISHED, null, Pageable.ofSize(10));
     assertThat(postsByCategoryId).hasSize(5);
     assertThat(postsByCategoryId).allMatch(
         p -> p.getCategory().getId().equals(category.getId()));
