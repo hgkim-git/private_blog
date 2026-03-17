@@ -35,7 +35,7 @@ class CategoryRepositoryTest {
   @Test
   void testUpdate() {
     Category savedCategory = categoryRepository.save(category);
-    savedCategory.update("업데이트", "업데이트된 slug", savedCategory.getDisplayOrder());
+    savedCategory.update("업데이트", "업데이트된 slug");
     entityManager.flush();
     assertEquals("업데이트", savedCategory.getName());
     assertEquals("업데이트된 slug", savedCategory.getSlug());

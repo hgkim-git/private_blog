@@ -22,7 +22,7 @@ class CategoryUpdateDtoTest {
 
   @Test
   void givenValidDto_whenValidate_thenNoViolation() {
-    CategoryUpdateDto validDto = new CategoryUpdateDto("test", "test-slug", 0);
+    CategoryUpdateDto validDto = new CategoryUpdateDto("test", "test-slug");
     Set<ConstraintViolation<CategoryUpdateDto>> violations = validator.validate(validDto);
     assertThat(violations).isEmpty();
   }
@@ -30,7 +30,7 @@ class CategoryUpdateDtoTest {
 
   @Test
   void givenNullDisplayOrder_whenValidate_thenNoViolation() {
-    CategoryUpdateDto validDto = new CategoryUpdateDto("test", "test-slug", null);
+    CategoryUpdateDto validDto = new CategoryUpdateDto("test", "test-slug");
     Set<ConstraintViolation<CategoryUpdateDto>> violations = validator.validate(validDto);
     assertThat(violations).isNotEmpty().hasSize(1).map(ConstraintViolation::getMessage)
         .contains("Display order cannot be null.");
@@ -38,7 +38,7 @@ class CategoryUpdateDtoTest {
 
   @Test
   void givenNegativeDisplayOrder_whenValidate_thenNoViolation() {
-    CategoryUpdateDto validDto = new CategoryUpdateDto("test", "test-slug", -1);
+    CategoryUpdateDto validDto = new CategoryUpdateDto("test", "test-slug");
     Set<ConstraintViolation<CategoryUpdateDto>> violations = validator.validate(validDto);
     assertThat(violations).isNotEmpty().hasSize(1).map(ConstraintViolation::getMessage)
         .contains("Display order must be positive or zero.");

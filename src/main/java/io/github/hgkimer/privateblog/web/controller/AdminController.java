@@ -108,6 +108,8 @@ public class AdminController {
 
   @GetMapping("/categories")
   public String categoryManagement(Model model) {
+    List<CategoryResponseDto> categories = categoryService.getAllCategories();
+    model.addAttribute("categories", categories);
     return "admin/categories";
   }
 

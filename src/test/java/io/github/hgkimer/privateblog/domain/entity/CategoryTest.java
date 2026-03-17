@@ -17,13 +17,12 @@ class CategoryTest {
     assertNotNull(category);
     assertEquals("test", category.getName());
     assertEquals("test", category.getSlug());
-    assertEquals(0, category.getDisplayOrder());
   }
 
   @Test
   void update() {
     Category category = mock();
-    category.update("test2", "test2", 2);
+    category.update("test2", "test2");
     assertEquals("test2", category.getName());
     assertEquals("test2", category.getSlug());
     assertEquals(2, category.getDisplayOrder());

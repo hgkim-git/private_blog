@@ -66,6 +66,9 @@ public class PostService {
     );
     List<Tag> tags = tagRepository.findTagByIdIn(postCreateDto.tagIds());
     addTags(post, tags);
+    if (category != null) {
+      category.increasePostCount();
+    }
     return postRepository.save(post);
   }
 
@@ -87,6 +90,7 @@ public class PostService {
     }
 
     String contentHtml = markdownService.convertToHtml(postUpdateDto.content());
+    Category oldCategory = post.getCategory();
     Category category = getOptionalCategory(categoryId);
     post.update(
         postUpdateDto.title(),
@@ -97,6 +101,12 @@ public class PostService {
         postUpdateDto.status().toUpperCase(),
         category
     );
+    if (oldCategory != null) {
+      oldCategory.decreasePostCount();
+    }
+    if (category != null) {
+      category.increasePostCount();
+    }
     List<Tag> tags = tagRepository.findTagByIdIn(postUpdateDto.tagIds());
     addTags(post, tags);
     return post;
@@ -162,9 +172,11 @@ public class PostService {
         .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND, email));
   }
 
+  @Nullable
   private Category getOptionalCategory(Long categoryId) {
     return Optional.ofNullable(categoryId)
         .flatMap(categoryRepository::findById).orElse(null);
   }
 
 }
+

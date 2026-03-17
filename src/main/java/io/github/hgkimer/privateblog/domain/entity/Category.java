@@ -31,6 +31,9 @@ public class Category extends BaseTimeEntity {
   @Column(name = "display_order", nullable = false)
   private Integer displayOrder = 0;
 
+  @Column(name = "post_count", nullable = false)
+  private Integer postCount = 0;
+
   @Builder
   public Category(String name, String slug, Integer displayOrder) {
     this.name = name;
@@ -46,9 +49,22 @@ public class Category extends BaseTimeEntity {
     return new Category(name, slug, displayOrder);
   }
 
-  public void update(String name, String slug, Integer displayOrder) {
+  public void update(String name, String slug) {
     this.name = name;
     this.slug = slug;
+  }
+
+  public void updateDisplayOrder(Integer displayOrder) {
     this.displayOrder = displayOrder;
+  }
+
+  public void increasePostCount() {
+    this.postCount++;
+  }
+
+  public void decreasePostCount() {
+    if (this.postCount > 0) {
+      this.postCount--;
+    }
   }
 }

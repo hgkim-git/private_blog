@@ -27,6 +27,24 @@
       color: var(--text-secondary);
       margin-top: 2px;
     }
+
+    .drag-handle {
+      cursor: grab;
+      color: var(--text-secondary);
+      padding: 0 8px;
+      font-size: 16px;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .sortable-ghost {
+      opacity: 0.4;
+      background: var(--bg-secondary, #f0f0f0);
+    }
   </style>
 </head>
 <body>
@@ -45,7 +63,7 @@
       <div class="section-header">
         <div>
           <span class="section-title">카테고리</span>
-          <span class="section-count" id="categoryCount">(5개)</span>
+          <span class="section-count" th:text="'(' + ${#lists.size(categories)} + '개)'">(0개)</span>
         </div>
       </div>
 
@@ -54,6 +72,7 @@
         <form id="addCategoryForm">
           <div class="form-row-2col">
             <div>
+              <label for="newCategoryName"></label>
               <input
                   class="form-input"
                   id="newCategoryName"
@@ -63,11 +82,11 @@
               >
             </div>
             <div>
+              <label for="newCategorySlug"></label>
               <input
-                  class="form-input"
+                  class="form-input slug-input"
                   id="newCategorySlug"
                   maxlength="250"
-                  pattern="[a-z0-9-]+"
                   placeholder="Slug (예: spring)"
                   required
                   type="text"
@@ -81,73 +100,37 @@
 
       <!-- Items List -->
       <div class="items-list" id="categoryList">
-        <div class="item" data-id="1">
+        <div class="item" th:data-id="${category.id}" th:each="category : ${categories}">
+          <span class="drag-handle" title="드래그하여 순서 변경">⠿</span>
           <div class="item-info">
-            <div class="item-name">Spring</div>
+            <div class="item-name" th:text="${category.name}">Spring</div>
             <div class="item-meta">
-              <span>Slug: spring</span>
-              <span style="margin-left: 12px;">게시글 12개</span>
+              <span th:text="'Slug: ' + ${category.slug}">Slug: spring</span>
+              <span style="margin-left: 12px;"
+                    th:text="'게시글 ' + ${category.postCount} + '개'">게시글 12개</span>
             </div>
           </div>
           <div class="item-actions">
-            <button class="action-btn edit" onclick="editCategory(1)">수정</button>
-            <button class="action-btn delete" onclick="deleteCategory(1)">삭제</button>
+            <button class="action-btn edit">수정</button>
+            <button class="action-btn delete">삭제</button>
           </div>
-        </div>
-
-        <div class="item" data-id="2">
-          <div class="item-info">
-            <div class="item-name">Java</div>
-            <div class="item-meta">
-              <span>Slug: java</span>
-              <span style="margin-left: 12px;">게시글 8개</span>
-            </div>
-          </div>
-          <div class="item-actions">
-            <button class="action-btn edit" onclick="editCategory(2)">수정</button>
-            <button class="action-btn delete" onclick="deleteCategory(2)">삭제</button>
-          </div>
-        </div>
-
-        <div class="item" data-id="3">
-          <div class="item-info">
-            <div class="item-name">Database</div>
-            <div class="item-meta">
-              <span>Slug: database</span>
-              <span style="margin-left: 12px;">게시글 5개</span>
-            </div>
-          </div>
-          <div class="item-actions">
-            <button class="action-btn edit" onclick="editCategory(3)">수정</button>
-            <button class="action-btn delete" onclick="deleteCategory(3)">삭제</button>
-          </div>
-        </div>
-
-        <div class="item" data-id="4">
-          <div class="item-info">
-            <div class="item-name">DevOps</div>
-            <div class="item-meta">
-              <span>Slug: devops</span>
-              <span style="margin-left: 12px;">게시글 3개</span>
-            </div>
-          </div>
-          <div class="item-actions">
-            <button class="action-btn edit" onclick="editCategory(4)">수정</button>
-            <button class="action-btn delete" onclick="deleteCategory(4)">삭제</button>
-          </div>
-        </div>
-
-        <div class="item" data-id="5">
-          <div class="item-info">
-            <div class="item-name">Frontend</div>
-            <div class="item-meta">
-              <span>Slug: frontend</span>
-              <span style="margin-left: 12px;">게시글 2개</span>
-            </div>
-          </div>
-          <div class="item-actions">
-            <button class="action-btn edit" onclick="editCategory(5)">수정</button>
-            <button class="action-btn delete" onclick="deleteCategory(5)">삭제</button>
+          <div class="edit-form" style="display: none;">
+            <input
+                class="edit-input"
+                th:data-pv="${category.name}"
+                th:id="'edit-name-' + ${category.id}"
+                th:value="${category.name}"
+                type="text"
+            >
+            <input
+                class="edit-input slug-input"
+                th:data-pv="${category.slug}"
+                th:id="'edit-slug-' + ${category.id}"
+                th:value="${category.slug}"
+                type="text"
+            >
+            <button class="btn btn-success action-btn save">저장</button>
+            <button class="btn btn-cancel action-btn cancel">취소</button>
           </div>
         </div>
       </div>
@@ -156,6 +139,7 @@
 </main>
 <!-- 페이지 JavaScript -->
 <th:block layout:fragment="scripts">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <script th:src="@{/js/admin/categories.js}" type="module"></script>
 </th:block>
 </body>

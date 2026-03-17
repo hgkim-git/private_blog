@@ -36,7 +36,7 @@
           <li class="sidebar-item" th:each="category : ${categories}">
             <a class="sidebar-link" th:href="@{/posts(category=${category.slug})}">
               <span th:text="${category.name}">Spring</span>
-              <!--<span class="post-count" th:text="${category.postCount}">12</span>-->
+              <span class="post-count" th:text="${category.postCount}">12</span>
             </a>
           </li>
         </ul>
