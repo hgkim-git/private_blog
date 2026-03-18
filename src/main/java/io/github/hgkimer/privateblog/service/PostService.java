@@ -113,6 +113,9 @@ public class PostService {
   }
 
   public void deletePost(Long id) {
+    if (!postRepository.existsById(id)) {
+      throw new ResourceNotFoundException(ErrorCode.POST_NOT_FOUND, id.toString());
+    }
     postRepository.deleteById(id);
   }
 

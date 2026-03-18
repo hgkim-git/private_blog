@@ -24,6 +24,9 @@ public class TagService {
   }
 
   public void deleteTag(Long id) {
+    if (!tagRepository.existsById(id)) {
+      throw new ResourceNotFoundException(ErrorCode.TAG_NOT_FOUND, id.toString());
+    }
     postTagRepository.deleteByTagId(id);
     tagRepository.deleteById(id);
   }
