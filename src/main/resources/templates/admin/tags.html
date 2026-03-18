@@ -56,17 +56,16 @@
         <form id="addTagForm">
           <div class="form-row-2col">
             <div>
-              <label for="newTagName"></label>
               <input
                   class="form-input"
                   id="newTagName"
                   placeholder="태그 이름 (예: Spring Security)"
                   required
                   type="text"
+                  aria-label="새로운 태그 이름 입력"
               >
             </div>
             <div>
-              <label for="newTagSlug"></label>
               <input
                   class="form-input slug-input"
                   id="newTagSlug"
@@ -74,6 +73,7 @@
                   placeholder="Slug (예: spring-security)"
                   required
                   type="text"
+                  aria-label="새로운 Slug 입력"
               >
               <div class="slug-hint">영문 소문자, 숫자, 하이픈만 입력 가능</div>
             </div>
@@ -101,10 +101,12 @@
             <input class="edit-input"
                    th:data-pv="${tag.name}"
                    th:id="'edit-name-' + ${tag.id}" th:value="${tag.name}"
+                   aria-label="태그 이름 입력"
                    type="text">
             <input class="edit-input slug-input"
                    th:data-pv="${tag.slug}"
                    th:id="'edit-slug-' + ${tag.id}" th:value="${tag.slug}"
+                   aria-label="태그 Slug 입력"
                    type="text">
             <button class="btn btn-success save tag-action">저장</button>
             <button class="btn btn-cancel cancel tag-action">취소</button>
