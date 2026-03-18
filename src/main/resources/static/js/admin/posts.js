@@ -128,7 +128,7 @@ const statusFilter = document.getElementById('statusFilter');
         statusFilter.value = value;
         break;
     }
-  })
+  });
 })();
 
 resetBtn.addEventListener('click', () => {

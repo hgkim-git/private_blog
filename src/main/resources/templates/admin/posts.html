@@ -76,7 +76,7 @@
         </div>
       </div>
       <div class="filter-group">
-        <label class="filter-label" style="opacity: 0;" aria-hidden="true">버튼</label>
+        <label aria-hidden="true" class="filter-label" style="opacity: 0;">버튼</label>
         <button class="btn btn-secondary" id="resetBtn">초기화</button>
       </div>
     </div>
@@ -103,7 +103,7 @@
         <thead>
         <tr>
           <th class="checkbox-col">
-            <input class="checkbox" id="selectAll" type="checkbox" aria-label="전체 선택">
+            <input aria-label="전체 선택" class="checkbox" id="selectAll" type="checkbox">
           </th>
           <th>제목</th>
           <th>카테고리</th>
@@ -116,7 +116,7 @@
         <tbody id="postsTableBody">
         <tr th:data-id="${post.id}" th:each="post : ${posts}">
           <td style="text-align: center;">
-            <input class="checkbox row-checkbox" type="checkbox" aria-label="개별 선택">
+            <input aria-label="개별 선택" class="checkbox row-checkbox" type="checkbox">
           </td>
           <td class="post-title-cell">
             <a class="post-title-link" href="#" th:text="${post.title}">Spring Security와 JWT를 활용한 인증

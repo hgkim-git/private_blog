@@ -11,16 +11,24 @@ export function goTo(path = null, options = {}) {
   } else {
     destinationURL = new URL(path, window.location.href);
   }
-  options = Object.assign({
+  const defaults = {
     params: {},
     cache: true,
     clearParams: false,
-  }, options);
+  };
+  options = {...defaults, ...options};
   if (options.clearParams) {
     destinationURL.search = '';
   }
-  Object.entries(options.params).forEach(
-      ([key, value]) => destinationURL.searchParams.set(key, value));
+  const searchParams = options.params;
+  for (const key in searchParams) {
+    // searchParams.hasOwnProperty 보다 안전한 방법
+    // null 객체(prototype chain 없음), hasOwnProperty 재정의 하는 엣지 케이스 방지
+    if (Object.prototype.hasOwnProperty.call(searchParams, key)) {
+      const value = searchParams[key];
+      destinationURL.searchParams.set(key, value);
+    }
+  }
   if (!options.cache) {
     destinationURL.searchParams.set('_', new Date().getTime().toString());
   }

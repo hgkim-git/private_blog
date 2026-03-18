@@ -91,7 +91,7 @@ categoryList.addEventListener('click', async (event) => {
     }
     await actionMap[actionKey]();
   }
-})
+});
 
 // 카테고리 수정
 function showEditForm(id, wrapper) {

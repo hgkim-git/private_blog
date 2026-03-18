@@ -17,7 +17,7 @@ function initEasyMDE() {
       'preview', 'side-by-side', 'fullscreen', '|',
       'guide'
     ]
-  }
+  };
   return new EasyMDE(options);
 }
 
@@ -56,7 +56,7 @@ if (postSlugInput.value.length > 0) {
   postSlugInput.dispatchEvent(new Event('input'));
 }
 
-const summaryInput = document.getElementById('postSummary')
+const summaryInput = document.getElementById('postSummary');
 summaryInput.addEventListener('input', handleSummaryInput);
 if (summaryInput.value.length > 0) {
   summaryInput.dispatchEvent(new Event('input'));
@@ -157,7 +157,7 @@ function renderTags() {
     span.setAttribute('data-id', tag.id ?? 'new');
     span.setAttribute('data-index', index);
     span.textContent = tag.name; // XSS 방지
-    const remove = document.createElement('span')
+    const remove = document.createElement('span');
     remove.classList.add('tag-remove');
     span.appendChild(remove);
     tagsContainer.appendChild(span);

@@ -74,23 +74,23 @@
           <div class="form-row-2col">
             <div>
               <input
+                  aria-label="새로운 카테고리 이름 입력"
                   class="form-input"
                   id="newCategoryName"
                   placeholder="카테고리 이름 (예: Spring)"
                   required
                   type="text"
-                  aria-label="새로운 카테고리 이름 입력"
               >
             </div>
             <div>
               <input
+                  aria-label="새로운 Slug 입력"
                   class="form-input slug-input"
                   id="newCategorySlug"
                   maxlength="100"
                   placeholder="Slug (예: spring)"
                   required
                   type="text"
-                  aria-label="새로운 Slug 입력"
               >
               <div class="slug-hint">영문 소문자, 숫자, 하이픈만 입력 가능</div>
             </div>
@@ -117,20 +117,20 @@
           </div>
           <div class="edit-form" style="display: none;">
             <input
+                aria-label="카테고리 이름 수정"
                 class="edit-input"
                 th:data-pv="${category.name}"
                 th:id="'edit-name-' + ${category.id}"
                 th:value="${category.name}"
                 type="text"
-                aria-label="카테고리 이름 수정"
             >
             <input
+                aria-label="카테고리 Slug 수정"
                 class="edit-input slug-input"
                 th:data-pv="${category.slug}"
                 th:id="'edit-slug-' + ${category.id}"
                 th:value="${category.slug}"
                 type="text"
-                aria-label="카테고리 Slug 수정"
             >
             <button class="btn btn-success save category-action">저장</button>
             <button class="btn btn-cancel cancel category-action">취소</button>
