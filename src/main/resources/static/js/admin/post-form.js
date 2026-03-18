@@ -29,8 +29,8 @@ easyMDE.codemirror.on('change', () => {
 let originalTags = [];
 try {
   originalTags = await api.get('/api/tags');
-} catch (e) {
-  console.error(e.message);
+} catch (error) {
+  console.error(error.message);
   originalTags = [];
 }
 
@@ -220,7 +220,7 @@ async function savePost() {
         });
         tagIds.push(created.id);
       } catch (error) {
-        alert(`태그 '${tag.name}' 생성에 실패했습니다.`);
+        alert(`태그 '${tag.name}' 생성에 실패했습니다.\n${error.message}`);
         return;
       }
     } else {
@@ -247,7 +247,7 @@ async function savePost() {
       cache: false,
     });
   } catch (error) {
-    alert('게시글 저장에 실패했습니다.');
+    alert(`게시글 저장에 실패했습니다.\n${error.message}`);
   }
 }
 

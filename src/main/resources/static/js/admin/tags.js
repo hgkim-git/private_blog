@@ -38,8 +38,8 @@ document.getElementById('addTagForm').addEventListener('submit', async (e) => {
       goTo({
         cache: false,
       });
-    } catch (e) {
-      alert('태그 저장에 실패하였습니다.');
+    } catch (error) {
+      alert(`태그 저장에 실패하였습니다.\n${error.message}`);
     }
   }
 });
@@ -94,8 +94,8 @@ async function saveTag(id) {
     goTo({
       cache: false,
     });
-  } catch (e) {
-    alert(`태그 수정에 실패했습니다. 오류: ${e.message}`);
+  } catch (error) {
+    alert(`태그 수정에 실패했습니다.\n${error.message}`);
   }
 }
 
@@ -128,7 +128,7 @@ async function deleteTag(id) {
     goTo({
       cache: false,
     });
-  } catch (e) {
-    alert(`태그 삭제에 실패했습니다.`);
+  } catch (error) {
+    alert(`태그 삭제에 실패했습니다.\n${error.message}`);
   }
 }

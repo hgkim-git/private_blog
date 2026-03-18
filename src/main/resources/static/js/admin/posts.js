@@ -56,8 +56,8 @@ bulkDeleteBtn.addEventListener('click', async () => {
   await Promise.all(selectedIds.map(async id => {
     try {
       await api.delete(`/api/posts/${id}`);
-    } catch (e) {
-      console.error('게시글 삭제 중 오류 발생:', e);
+    } catch (error) {
+      console.error('게시글 삭제 중 오류 발생:', error);
       failed++;
     }
   }));
@@ -93,8 +93,8 @@ async function deletePost(postId) {
     goTo({
       cache: false,
     });
-  } catch (e) {
-    console.error('게시글 삭제 중 오류 발생:', e);
+  } catch (error) {
+    console.error('게시글 삭제 중 오류 발생:', error);
     alert('게시글 삭제 중 오류가 발생했습니다. 다시 시도해주세요.');
   }
 }
@@ -152,17 +152,16 @@ function search() {
     clearParams: true,
   };
   const params = {};
-  const keyword = searchInput.value.trim();
-  if (keyword) {
-    params.keyword = keyword;
-  }
-  const category = categoryFilter.value.trim();
-  if (category) {
-    params.category = category;
-  }
-  const status = statusFilter.value.trim();
-  if (status) {
-    params.status = status;
+  const searchTermsMap = {
+    keyword: searchInput.value.trim(),
+    category: categoryFilter.value.trim(),
+    status: statusFilter.value.trim(),
+  };
+  for (const key in searchTermsMap) {
+    const value = searchTermsMap[key];
+    if (value) {
+      params[key] = value;
+    }
   }
   Object.assign(options, {params});
   goTo(options);

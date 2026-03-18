@@ -17,8 +17,8 @@ const sortable = new Sortable(categoryList, {
     }));
     try {
       await api.put('/api/categories/reorder', orders);
-    } catch (e) {
-      alert('순서 변경에 실패했습니다.');
+    } catch (error) {
+      alert(`순서 변경에 실패했습니다.\n${error.message}`);
       goTo({
         cache: false
       });
@@ -59,8 +59,8 @@ document.getElementById('addCategoryForm').addEventListener('submit',
           goTo({
             cache: false,
           });
-        } catch (e) {
-          alert('카테고리 저장에 실패했습니다.');
+        } catch (error) {
+          alert(`카테고리 저장에 실패했습니다.\n${error.message}`);
         }
       }
     });
@@ -124,8 +124,8 @@ async function saveCategory(id) {
     goTo({
       cache: false,
     });
-  } catch (e) {
-    alert(`카테고리 수정에 실패했습니다. 오류: ${e.message}`);
+  } catch (error) {
+    alert(`카테고리 수정에 실패했습니다.\n${error.message}`);
   }
 }
 
@@ -150,7 +150,7 @@ async function deleteCategory(id) {
     goTo({
       cache: false,
     });
-  } catch (e) {
-    alert(`카테고리 삭제에 실패했습니다.`);
+  } catch (error) {
+    alert(`카테고리 삭제에 실패했습니다.\n${error.message}`);
   }
 }
