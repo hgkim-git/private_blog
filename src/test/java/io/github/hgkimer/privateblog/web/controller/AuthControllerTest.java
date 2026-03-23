@@ -87,13 +87,11 @@ class AuthControllerTest {
         .assertThat()
         .hasStatusOk()
         .headers().containsHeader(HttpHeaders.SET_COOKIE)
-        .hasEntrySatisfying(HttpHeaders.SET_COOKIE, values -> {
-          values.forEach(v -> {
-            assertThat(v).contains("access-token=mocked-jwt-token");
-            assertThat(v).contains("HttpOnly");
-            assertThat(v).contains("SameSite=Strict");
-          });
-        });
+        .hasEntrySatisfying(HttpHeaders.SET_COOKIE, values -> values.forEach(v -> {
+          assertThat(v).contains("access-token=mocked-jwt-token");
+          assertThat(v).contains("HttpOnly");
+          assertThat(v).contains("SameSite=Strict");
+        }));
   }
 
   @Test
@@ -128,9 +126,8 @@ class AuthControllerTest {
         .with(csrf()).assertThat()
         // Then
         .hasStatus(HttpStatus.OK)
-        .headers().hasEntrySatisfying(HttpHeaders.SET_COOKIE, values -> {
-          values.forEach(v -> assertThat(v).contains("Max-Age=0"));
-        });
+        .headers().hasEntrySatisfying(HttpHeaders.SET_COOKIE,
+            values -> values.forEach(v -> assertThat(v).contains("Max-Age=0")));
   }
 
   @Test

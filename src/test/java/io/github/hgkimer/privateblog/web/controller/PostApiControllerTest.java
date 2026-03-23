@@ -12,6 +12,7 @@ import io.github.hgkimer.privateblog.domain.entity.Tag;
 import io.github.hgkimer.privateblog.domain.entity.User;
 import io.github.hgkimer.privateblog.domain.enums.PostStatus;
 import io.github.hgkimer.privateblog.domain.enums.UserRole;
+import io.github.hgkimer.privateblog.security.JwtTokenProvider;
 import io.github.hgkimer.privateblog.service.PostService;
 import io.github.hgkimer.privateblog.web.dto.response.PostDetailResponseDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostSummaryResponseDto;
@@ -39,6 +40,8 @@ class PostApiControllerTest {
   private MockMvcTester mockMvcTester;
   @MockitoBean
   private PostService postService;
+  @MockitoBean
+  private JwtTokenProvider jwtTokenProvider;
   private Post post;
 
   @BeforeEach
@@ -72,7 +75,7 @@ class PostApiControllerTest {
 
   @Test
   void givenValidJSON_whenCreatePost_thenResponseCreated() {
-    given(postService.createPost(any())).willReturn(post);
+    given(postService.createPost(any(), any())).willReturn(post);
     String json = """
         {
             "author": "test@example.com",

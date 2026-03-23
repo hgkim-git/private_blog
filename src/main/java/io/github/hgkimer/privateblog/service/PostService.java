@@ -139,11 +139,6 @@ public class PostService {
         PostSummaryResponseDto::from);
   }
 
-  private void validateUser(String email) {
-    userRepository.findByEmail(email)
-        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND, email));
-  }
-
   private void validateCategory(Long categoryId) {
     categoryRepository.findById(categoryId)
         .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.CATEGORY_NOT_FOUND,

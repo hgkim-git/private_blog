@@ -33,27 +33,23 @@ import org.springframework.data.domain.Sort;
 @SpringBootTest
 class PostServiceTest {
 
+  private final String AUTHOR = "admin@example.com";
   @Autowired
   private PostRepository postRepository;
-
   @Autowired
   private CategoryRepository categoryRepository;
-
   @Autowired
   private TagRepository tagRepository;
-
   @Autowired
   private UserRepository userRepository;
-
   @Autowired
   private PostService postService;
-
   private PostCreateDto postCreateDto;
 
   @BeforeEach
   void setUp() {
     User author = User.builder()
-        .email("admin@example.com")
+        .email(AUTHOR)
         .password("password")
         .role(UserRole.ADMIN)
         .build();
@@ -81,7 +77,7 @@ class PostServiceTest {
 
   @Test
   void createNaivePost() {
-    Post post = postService.createPost(postCreateDto);
+    Post post = postService.createPost(postCreateDto, AUTHOR);
     assertThat(post).isNotNull();
   }
 
@@ -98,7 +94,7 @@ class PostServiceTest {
         postCreateDto.slug(), postCreateDto.status(), tagsIds);
 
     //when
-    Post savedPost = postService.createPost(postCreateDto);
+    Post savedPost = postService.createPost(postCreateDto, AUTHOR);
 
     // then
     List<PostTag> postTags = savedPost.getPostTags();
@@ -111,7 +107,7 @@ class PostServiceTest {
 
   @Test
   void deletePost() {
-    Post saved = postService.createPost(postCreateDto);
+    Post saved = postService.createPost(postCreateDto, AUTHOR);
     Post found = postRepository.findByIdWithDetails(saved.getId());
     postService.deletePost(found.getId());
     assertThat(postRepository.findAll()).isEmpty();
@@ -120,7 +116,7 @@ class PostServiceTest {
   @Test
   void givenNewParams_whenPostUpdated_thenChanged() {
     // given
-    Post saved = postService.createPost(postCreateDto);
+    Post saved = postService.createPost(postCreateDto, AUTHOR);
     PostUpdateDto param = new PostUpdateDto(postCreateDto.categoryId(),
         "새로운 제목", "새로운 본문", "새로운 요약",
         "new-slug", PostStatus.PUBLISHED.name(), List.of()
@@ -136,6 +132,7 @@ class PostServiceTest {
             "author",
             "postTags",
             "status",
+            "contentHtml",
             "viewCount",
             "createdAt",
             "updatedAt")
@@ -148,7 +145,7 @@ class PostServiceTest {
     // given
     Category newCategory = Category.builder().name("새로운 카테고리").slug("new-category").build();
     categoryRepository.save(newCategory);
-    Post saved = postService.createPost(postCreateDto);
+    Post saved = postService.createPost(postCreateDto, AUTHOR);
     // when
     saved = postService.updatePost(saved.getId(),
         new PostUpdateDto(newCategory.getId(),
@@ -173,7 +170,7 @@ class PostServiceTest {
     Post saved = postService.createPost(new PostCreateDto(postCreateDto.categoryId(),
         postCreateDto.title(), postCreateDto.content(),
         postCreateDto.summary(),
-        postCreateDto.slug(), postCreateDto.status(), tagIds));
+        postCreateDto.slug(), postCreateDto.status(), tagIds), AUTHOR);
     Tag newTag = Tag.builder().name("새로운 태그").slug("new-tag").build();
     tagRepository.save(newTag);
 
@@ -198,7 +195,7 @@ class PostServiceTest {
 
   @Test
   void givenSlug_whenGetPostWithDetails_thenFound() {
-    Post post = postService.createPost(postCreateDto);
+    Post post = postService.createPost(postCreateDto, AUTHOR);
     PostDetailResponseDto found = postService.getPostBySlug(post.getSlug());
     assertThat(found).isNotNull();
     assertThat(found.id()).isEqualTo(post.getId());
@@ -220,7 +217,7 @@ class PostServiceTest {
         List.of(tag.getId())
     );
 
-    Post post = postService.createPost(postCreateDto);
+    Post post = postService.createPost(postCreateDto, AUTHOR);
     PostDetailResponseDto found = postService.getPostBySlug(post.getSlug());
     assertThat(found).isNotNull();
     assertThat(found.id()).isEqualTo(post.getId());
@@ -239,7 +236,7 @@ class PostServiceTest {
       postService.createPost(
           new PostCreateDto(postCreateDto.categoryId(),
               postCreateDto.title(), postCreateDto.content(), postCreateDto.summary(),
-              "test-slug" + i, PostStatus.PUBLISHED.name(), List.of()));
+              "test-slug" + i, PostStatus.PUBLISHED.name(), List.of()), AUTHOR);
     }
     Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "createdAt");
     Pageable pageable = PageRequest.of(0, 10, sort);
@@ -258,13 +255,13 @@ class PostServiceTest {
       postService.createPost(
           new PostCreateDto(postCreateDto.categoryId(),
               "카테고리 있는 게시글" + i, postCreateDto.content(), postCreateDto.summary(),
-              "categorized-slug" + i, PostStatus.PUBLISHED.name(), List.of()));
+              "categorized-slug" + i, PostStatus.PUBLISHED.name(), List.of()), AUTHOR);
     }
     for (int i = 0; i < 5; i++) {
       postService.createPost(
           new PostCreateDto(null,
               postCreateDto.title(), postCreateDto.content(), postCreateDto.summary(),
-              "just-slug" + i, PostStatus.PUBLISHED.name(), List.of()));
+              "just-slug" + i, PostStatus.PUBLISHED.name(), List.of()), AUTHOR);
     }
     Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "createdAt");
     Pageable pageable = PageRequest.of(0, 10, sort);
@@ -287,13 +284,13 @@ class PostServiceTest {
       postService.createPost(
           new PostCreateDto(null,
               "키워드 있는 게시글" + i, postCreateDto.content(), postCreateDto.summary(),
-              "keyword-slug" + i, PostStatus.PUBLISHED.name(), List.of()));
+              "keyword-slug" + i, PostStatus.PUBLISHED.name(), List.of()), AUTHOR);
     }
     for (int i = 0; i < 5; i++) {
       postService.createPost(
           new PostCreateDto(null,
               "일반 게시글", postCreateDto.content(), postCreateDto.summary(),
-              "just-slug" + i, PostStatus.PUBLISHED.name(), List.of()));
+              "just-slug" + i, PostStatus.PUBLISHED.name(), List.of()), AUTHOR);
     }
     String keyword = "키워드";
     Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "createdAt");
