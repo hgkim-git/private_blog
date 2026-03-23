@@ -30,7 +30,8 @@ public enum ErrorCode {
 
   // User errors
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "User not found"),
-  INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "U002", "Invalid password");
+  BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, "U002", "Invalid username or password"),
+  UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "U003", "Authentication required");
 
   private final HttpStatus httpStatus;
   private final String code;

@@ -39,9 +39,7 @@ public class PostService {
 
   private final MarkdownService markdownService;
 
-  public Post createPost(PostCreateDto postCreateDto) {
-//    TODO: Security
-//    validateUser(postCreateDto.author());
+  public Post createPost(PostCreateDto postCreateDto, String email) {
     if (postCreateDto.categoryId() != null) {
       validateCategory(postCreateDto.categoryId());
     }
@@ -50,8 +48,7 @@ public class PostService {
       throw new DuplicateResourceException(ErrorCode.DUPLICATE_POST_SLUG,
           postCreateDto.slug());
     }
-    //TODO: Security
-    User user = getRequiredUser("hgkimer@gmail.com");
+    User user = getRequiredUser(email);
     Category category = getOptionalCategory(postCreateDto.categoryId());
     String htmlContent = markdownService.convertToHtml(postCreateDto.content());
     Post post = Post.of(
@@ -180,6 +177,7 @@ public class PostService {
     return Optional.ofNullable(categoryId)
         .flatMap(categoryRepository::findById).orElse(null);
   }
+
 
 }
 

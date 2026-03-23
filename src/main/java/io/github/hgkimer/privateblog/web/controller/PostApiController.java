@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,11 +43,10 @@ public class PostApiController {
 
   @PostMapping()
   public ResponseEntity<PostDetailResponseDto> createPost(
-      @RequestBody @Valid PostCreateDto postCreateDto) {
-    // TODO: Authorization check
-    // TODO: 새로운 태그는 클라이언트에서 먼저 처리하여 게시글 생성 요청에는 모두 존재하는 태그만 전달
+      @RequestBody @Valid PostCreateDto postCreateDto,
+      @AuthenticationPrincipal String email) {
     PostDetailResponseDto responseDto = PostDetailResponseDto.from(
-        postService.createPost(postCreateDto));
+        postService.createPost(postCreateDto, email));
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
 

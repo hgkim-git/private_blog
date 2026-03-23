@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
@@ -15,7 +16,7 @@
       <a href="#" class="nav-link">소개</a>-->
     </nav>
     <div style="display: flex; align-items: center; gap: 8px;">
-      <a class="admin-link" th:href="@{/admin}">관리자</a>
+      <a class="admin-link" sec:authorize="hasAuthority('ADMIN')" th:href="@{/admin}">관리자</a>
       <button class="theme-toggle-btn" id="themeToggle">
         <span id="themeIcon">🌙</span>
       </button>

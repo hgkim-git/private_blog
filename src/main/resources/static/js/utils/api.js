@@ -1,16 +1,31 @@
 export const api = {};
 
+export function getCsrfToken() {
+  const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+async function request(url, options) {
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    if (response.status === 401) {
+      alert('세션이 만료되었습니다. 로그인 페이지로 이동합니다.');
+      window.location.href = '/admin/login';
+      throw new Error('Unauthorized');
+    }
+    const error = await response.json();
+    alert(`[${response.status}] ${error.message}`);
+    throw new Error(error.message);
+  }
+  return response;
+}
+
 api.get = async function (url) {
   const options = {
     method: 'GET',
     cache: 'no-cache',
   };
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    const error = await response.json();
-    alert(`[${response.status}] ${error.message}`);
-    throw new Error(error.message);
-  }
+  const response = await request(url, options);
   return await response.json();
 };
 
@@ -19,15 +34,11 @@ api.post = async function (url, data) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-XSRF-TOKEN': getCsrfToken(),
     },
     body: JSON.stringify(data),
   };
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    const error = await response.json();
-    alert(`[${response.status}] ${error.message}`);
-    throw new Error(error.message);
-  }
+  const response = await request(url, options);
   return await response.json();
 };
 
@@ -36,15 +47,11 @@ api.patch = async function (url, data) {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      'X-XSRF-TOKEN': getCsrfToken(),
     },
     body: JSON.stringify(data),
   };
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    const error = await response.json();
-    alert(`[${response.status}] ${error.message}`);
-    throw new Error(error.message);
-  }
+  const response = await request(url, options);
   return await response.json();
 };
 
@@ -53,25 +60,19 @@ api.put = async function (url, data) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'X-XSRF-TOKEN': getCsrfToken(),
     },
     body: JSON.stringify(data),
   };
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    const error = await response.json();
-    alert(`[${response.status}] ${error.message}`);
-    throw new Error(error.message);
-  }
+  await request(url, options);
 };
 
 api['delete'] = async function (url) {
   const options = {
     method: 'DELETE',
+    headers: {
+      'X-XSRF-TOKEN': getCsrfToken(),
+    },
   };
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    const error = await response.json();
-    alert(`[${response.status}] ${error.message}`);
-    throw new Error(error.message);
-  }
+  await request(url, options);
 };

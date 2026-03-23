@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,6 +60,13 @@ public class GlobalApiExceptionHandler {
     log.error("Invalid input occurred: {}", e.getMessage(), e);
     ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INVALID_INPUT);
     return ResponseEntity.badRequest().body(errorResponse);
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  protected ResponseEntity<ErrorResponse> handleBadCredentialsException() {
+    log.error("Invalid credentials provided");
+    ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.BAD_CREDENTIALS);
+    return ResponseEntity.status(ErrorCode.BAD_CREDENTIALS.getHttpStatus()).body(errorResponse);
   }
 
   @ExceptionHandler(Exception.class)

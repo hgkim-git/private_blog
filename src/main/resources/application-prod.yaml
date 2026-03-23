@@ -30,6 +30,13 @@ logging:
       max-history: 30
       total-size-cap: 3GB
 
+jwt:
+  secret-key: ${JWT_SECRET_KEY} # prod 에선 환경 변수 처리 필요
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION} # access token 만료 시간(ms) 관리자 페이지라 혼자만 로그인하니까 하루로 잡음
+  cookie-name: ${JWT_COOKIE_NAME}
+  use-secure-cookie: false # http: false / https: true
+
+
 # p6spy 비활성화 (prod 환경)
 decorator:
   datasource:
