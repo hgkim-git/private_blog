@@ -1,18 +1,12 @@
 import {goTo} from '/js/utils/nav.js';
-import {getCsrfToken} from '/js/utils/api.js';
 
 // 로그아웃
 document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
-      const csrfToken = getCsrfToken();
-      if (!csrfToken) {
-        // await fetch('/api/auth/csrf', { method: 'GET' });
-      }
       await fetch('/api/auth/logout', {
         method: 'POST',
-        headers: {'X-XSRF-TOKEN': getCsrfToken()},
       });
       goTo('/admin/login', {params: {logout: true}});
     });

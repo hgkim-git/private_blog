@@ -1,7 +1,6 @@
 package io.github.hgkimer.privateblog.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.hgkimer.privateblog.security.CsrfCookieFilter;
 import io.github.hgkimer.privateblog.security.JwtAuthenticationFilter;
 import io.github.hgkimer.privateblog.service.CustomUserDetailsService;
 import io.github.hgkimer.privateblog.web.exception.ErrorCode;
@@ -17,16 +16,12 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 // Spring Security 6부터 @EnableWebSecurity 에 @Configuration이 포함되지 않아 별도로 표기 필요
 @Configuration
@@ -40,28 +35,11 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    // CSRF 토큰 핸들러 설정: _csrf 속성 명시를 피하기 위해 name을 null로 설정
-    CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
-    requestHandler.setCsrfRequestAttributeName(null);
-
     http
-        // 쿠키에 JWT 토큰을 저장할 예정이므로 보안을 위해 csrf 활성화
-        .csrf(csrf -> csrf
-            // 쿠키 방식에서는 CsrfTokenRequestAttributeHandler를 써야 JS가 쿠키를 그대로 헤더에 넣는 단순한 방식으로 동작
-            // JS에서 읽을 수 있도록 HttpOnly=false 쿠키로 CSRF 토큰 발급(CookieCsrfTokenRepository.withHttpOnlyFalse())
-            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-            .csrfTokenRequestHandler(requestHandler)
-            .ignoringRequestMatchers("/api/auth/login")
-            // Spring Security 6.1+ 에서는 csrf 설정 내에서도 sessionAuthenticationStrategy를 설정할 수 있음
-            // STATELESS 세션 정책을 사용하더라도 CsrfConfigurer가 기본으로 추가하는 CsrfAuthenticationStrategy가
-            // 인증 시마다 기존 CSRF 토큰 쿠키를 삭제하고 재발급하는 것을 방지
-            .sessionAuthenticationStrategy(new NullAuthenticatedSessionStrategy())
-        )
+        .csrf(CsrfConfigurer::disable)
         // Session STATELESS 설정
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            // sessionAuthenticationStrategy를 NullAuthenticatedSessionStrategy로 명시 설정
-            .sessionAuthenticationStrategy(new NullAuthenticatedSessionStrategy())
         )
         .authorizeHttpRequests(
             authorizeHttpRequests ->
@@ -93,12 +71,6 @@ public class SecurityConfig {
             })
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        // CsrfFilter 이후에 실행하여 XSRF-TOKEN 쿠키가 매 응답에 항상 set되도록 강제
-        .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class)
-        // 커스텀 /api/auth/logout 을 사용하므로 Spring Security 기본 LogoutFilter 비활성화
-        // 기본 LogoutFilter는 CsrfLogoutHandler를 포함하여 POST /logout 요청 시 XSRF-TOKEN 쿠키를
-        // Max-Age=0 으로 삭제한다. 비활성화하지 않으면 의도치 않게 CSRF 쿠키가 삭제될 수 있다.
-        .logout(LogoutConfigurer::disable)
     ;
     return http.build();
   }

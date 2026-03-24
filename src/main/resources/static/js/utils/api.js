@@ -1,10 +1,5 @@
 export const api = {};
 
-export function getCsrfToken() {
-  const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
 async function request(url, options) {
   const response = await fetch(url, options);
   if (!response.ok) {
@@ -34,7 +29,6 @@ api.post = async function (url, data) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-XSRF-TOKEN': getCsrfToken(),
     },
     body: JSON.stringify(data),
   };
@@ -47,7 +41,6 @@ api.patch = async function (url, data) {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      'X-XSRF-TOKEN': getCsrfToken(),
     },
     body: JSON.stringify(data),
   };
@@ -60,7 +53,6 @@ api.put = async function (url, data) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      'X-XSRF-TOKEN': getCsrfToken(),
     },
     body: JSON.stringify(data),
   };
@@ -70,9 +62,6 @@ api.put = async function (url, data) {
 api['delete'] = async function (url) {
   const options = {
     method: 'DELETE',
-    headers: {
-      'X-XSRF-TOKEN': getCsrfToken(),
-    },
   };
   await request(url, options);
 };

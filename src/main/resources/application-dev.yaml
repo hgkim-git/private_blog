@@ -34,5 +34,6 @@ logging:
     root: INFO
     io.github.hgkimer.privateblog: DEBUG
     p6spy: INFO
+    org.springframework.security: TRACE
   pattern:
     console: "%d{HH:mm:ss.SSS} %clr(%-5level) %clr([%15.15thread]){cyan} %clr(%-40.40logger{39}){blue} - %msg%n"
