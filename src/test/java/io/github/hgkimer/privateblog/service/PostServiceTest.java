@@ -1,309 +1,266 @@
 package io.github.hgkimer.privateblog.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 import io.github.hgkimer.privateblog.domain.entity.Category;
 import io.github.hgkimer.privateblog.domain.entity.Post;
-import io.github.hgkimer.privateblog.domain.entity.PostTag;
 import io.github.hgkimer.privateblog.domain.entity.Tag;
 import io.github.hgkimer.privateblog.domain.entity.User;
 import io.github.hgkimer.privateblog.domain.enums.PostStatus;
-import io.github.hgkimer.privateblog.domain.enums.UserRole;
 import io.github.hgkimer.privateblog.persistence.jpa.CategoryRepository;
 import io.github.hgkimer.privateblog.persistence.jpa.PostRepository;
 import io.github.hgkimer.privateblog.persistence.jpa.TagRepository;
 import io.github.hgkimer.privateblog.persistence.jpa.UserRepository;
+import io.github.hgkimer.privateblog.support.domain.entity.CategoryFixtureFactory;
+import io.github.hgkimer.privateblog.support.domain.entity.PostFixtureFactory;
+import io.github.hgkimer.privateblog.support.domain.entity.TagFixtureFactory;
+import io.github.hgkimer.privateblog.support.domain.entity.UserFixtureFactory;
+import io.github.hgkimer.privateblog.support.web.dto.PostCreateDtoFixtureFactory;
 import io.github.hgkimer.privateblog.web.dto.request.PostCreateDto;
 import io.github.hgkimer.privateblog.web.dto.request.PostUpdateDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostDetailResponseDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostSummaryResponseDto;
-import io.github.hgkimer.privateblog.web.dto.response.TagResponseDto;
-import java.util.Collections;
+import io.github.hgkimer.privateblog.web.exception.DuplicateResourceException;
+import io.github.hgkimer.privateblog.web.exception.ResourceNotFoundException;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.test.util.ReflectionTestUtils;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class PostServiceTest {
 
-  private final String AUTHOR = "admin@example.com";
-  @Autowired
+  private final String AUTHOR_EMAIL = "admin@example.com";
+
+  @Mock
   private PostRepository postRepository;
-  @Autowired
+
+  @Mock
   private CategoryRepository categoryRepository;
-  @Autowired
+
+  @Mock
   private TagRepository tagRepository;
-  @Autowired
+
+  @Mock
   private UserRepository userRepository;
-  @Autowired
+
+  @Mock
+  private MarkdownService markdownService;
+
+  @InjectMocks
   private PostService postService;
+
   private PostCreateDto postCreateDto;
 
   @BeforeEach
   void setUp() {
-    User author = User.builder()
-        .email(AUTHOR)
-        .password("password")
-        .role(UserRole.ADMIN)
-        .build();
-    userRepository.save(author);
-    Category category = Category.builder()
-        .name("카테고리1")
-        .slug("category1")
-        .displayOrder(1)
-        .build();
-    categoryRepository.save(category);
-
-    postCreateDto = new PostCreateDto(category.getId(),
-        "제목",
-        "내용", "요약", "test-slug", "DRAFT",
-        Collections.emptyList());
-  }
-
-  @AfterEach
-  void tearDown() {
-    postRepository.deleteAll();
-    tagRepository.deleteAll();
-    userRepository.deleteAll();
-    categoryRepository.deleteAll();
+    postCreateDto = PostCreateDtoFixtureFactory.createPostCreateDto();
   }
 
   @Test
-  void createNaivePost() {
-    Post post = postService.createPost(postCreateDto, AUTHOR);
-    assertThat(post).isNotNull();
-  }
-
-  @Test
-  void givenNewTags_whenPostCreated_thenSavedWithTags() {
-    //given
-    Tag tag1 = Tag.builder().name("태그1").slug("tag-slug-1").build();
-    tagRepository.save(tag1);
-    Tag tag2 = Tag.builder().name("태그2").slug("tag-slug-2").build();
-    tagRepository.save(tag2);
-    List<Long> tagsIds = List.of(tag1.getId(), tag2.getId());
-    postCreateDto = new PostCreateDto(postCreateDto.categoryId(),
-        postCreateDto.title(), postCreateDto.content(), postCreateDto.summary(),
-        postCreateDto.slug(), postCreateDto.status(), tagsIds);
-
-    //when
-    Post savedPost = postService.createPost(postCreateDto, AUTHOR);
-
-    // then
-    List<PostTag> postTags = savedPost.getPostTags();
-    assertThat(postTags).hasSize(2);
-    assertThat(postTags).allMatch(pt -> {
-      Tag tag = pt.getTag();
-      return tag.getName().equals(tag1.getName()) || tag.getName().equals(tag2.getName());
-    });
-  }
-
-  @Test
-  void deletePost() {
-    Post saved = postService.createPost(postCreateDto, AUTHOR);
-    Post found = postRepository.findByIdWithDetails(saved.getId());
-    postService.deletePost(found.getId());
-    assertThat(postRepository.findAll()).isEmpty();
-  }
-
-  @Test
-  void givenNewParams_whenPostUpdated_thenChanged() {
+  @DisplayName("기본 게시글 생성 테스트")
+  void testCreateNaivePost() {
     // given
-    Post saved = postService.createPost(postCreateDto, AUTHOR);
-    PostUpdateDto param = new PostUpdateDto(postCreateDto.categoryId(),
-        "새로운 제목", "새로운 본문", "새로운 요약",
-        "new-slug", PostStatus.PUBLISHED.name(), List.of()
-    );
+    User author = UserFixtureFactory.createAdminFixture(AUTHOR_EMAIL);
+    given(markdownService.convertToHtml(anyString())).willReturn("<p>테스트 내용</p>");
+    given(userRepository.findByEmail(AUTHOR_EMAIL)).willReturn(Optional.of(author));
+    given(postRepository.existsBySlug(postCreateDto.slug())).willReturn(false);
+
+    // 명시적으로 첫 번째 인자를 반환하도록 설정
+    given(postRepository.save(any(Post.class))).will(returnsFirstArg());
 
     // when
-    saved = postService.updatePost(saved.getId(), param);
+    Post result = postService.createPost(postCreateDto, AUTHOR_EMAIL);
 
     // then
-    assertThat(saved).usingRecursiveComparison()
-        .ignoringFields("id",
-            "category",
-            "author",
-            "postTags",
-            "status",
-            "contentHtml",
-            "viewCount",
-            "createdAt",
-            "updatedAt")
-        .isEqualTo(param);
-    assertThat(saved.getStatus()).isEqualTo(PostStatus.PUBLISHED);
+    ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
+    then(postRepository).should().save(postCaptor.capture());
+
+    Post savedPost = postCaptor.getValue();
+    assertThat(savedPost.getTitle()).isEqualTo(postCreateDto.title());
+    assertThat(result).isEqualTo(savedPost);
   }
 
   @Test
-  void givenNewCategory_whenPostUpdated_thenSavedWithNewCategory() {
+  @DisplayName("카테고리와 태그가 포함된 게시글이 정상 저장되어야 한다")
+  void testCreatePostWithCategoryAndTags() {
     // given
-    Category newCategory = Category.builder().name("새로운 카테고리").slug("new-category").build();
-    categoryRepository.save(newCategory);
-    Post saved = postService.createPost(postCreateDto, AUTHOR);
-    // when
-    saved = postService.updatePost(saved.getId(),
-        new PostUpdateDto(newCategory.getId(),
-            saved.getTitle(), saved.getContent(), saved.getSummary(),
-            saved.getSlug(), saved.getStatus().name(),
-            saved.getPostTags().stream().map(pt -> pt.getTag().getId()).toList()));
-    // then
-    assertThat(saved.getCategory().getName()).isEqualTo(newCategory.getName());
-  }
+    User author = UserFixtureFactory.createAdminFixture(AUTHOR_EMAIL);
+    Category category = CategoryFixtureFactory.createFixture();
+    Long categoryId = 10L;
+    ReflectionTestUtils.setField(category, "id", categoryId);
 
-  @Test
-  void givenTagChange_whenPostUpdated_thenSavedWithNewTags() {
-    // given
-    Tag tag1 = Tag.builder().name("태그1").slug("tag-slug-1").build();
-    tagRepository.save(tag1);
-    Tag tag2 = Tag.builder().name("태그2").slug("tag-slug-2").build();
-    tagRepository.save(tag2);
-    List<Long> tagIds = List.of(
-        tag1.getId(),
-        tag2.getId()
-    );
-    Post saved = postService.createPost(new PostCreateDto(postCreateDto.categoryId(),
-        postCreateDto.title(), postCreateDto.content(),
-        postCreateDto.summary(),
-        postCreateDto.slug(), postCreateDto.status(), tagIds), AUTHOR);
-    Tag newTag = Tag.builder().name("새로운 태그").slug("new-tag").build();
-    tagRepository.save(newTag);
+    Tag tag1 = TagFixtureFactory.createFixture("태그1", "tag1");
+    Tag tag2 = TagFixtureFactory.createFixture("태그2", "tag2");
+    ReflectionTestUtils.setField(tag1, "id", 1L);
+    ReflectionTestUtils.setField(tag2, "id", 2L);
+    List<Long> tagIds = List.of(1L, 2L);
+
+    PostCreateDto dto = new PostCreateDto(categoryId, "제목", "내용", "요약", "slug", "PUBLISHED",
+        tagIds);
+
+    given(markdownService.convertToHtml(anyString())).willReturn("<p>테스트 내용</p>");
+    given(categoryRepository.findById(categoryId)).willReturn(Optional.of(category));
+    given(tagRepository.findTagByIdIn(tagIds)).willReturn(List.of(tag1, tag2));
+    given(userRepository.findByEmail(AUTHOR_EMAIL)).willReturn(Optional.of(author));
+    given(postRepository.existsBySlug("slug")).willReturn(false);
+
+    // 명시적으로 첫 번째 인자를 반환하도록 설정
+    given(postRepository.save(any(Post.class))).will(returnsFirstArg());
 
     // when
-    saved = postService.updatePost(saved.getId(),
-        new PostUpdateDto(saved.getCategory().getId(),
-            saved.getTitle(),
-            saved.getContent(),
-            saved.getSummary(),
-            saved.getSlug(),
-            saved.getStatus().name(),
-            List.of(newTag.getId())));
+    Post result = postService.createPost(dto, AUTHOR_EMAIL);
 
     // then
-    assertThat(saved.getPostTags()).hasSize(1)
-        .allSatisfy(pt -> assertThat(pt.getId()).isNotNull());
-    assertThat(tagRepository.findAll()).hasSize(3);
-    Long id = saved.getId();
-    assertThat(saved.getPostTags()).allSatisfy(
-        pt -> assertThat(pt.getPost().getId()).isEqualTo(id));
+    ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
+    then(postRepository).should().save(postCaptor.capture());
+
+    Post savedPost = postCaptor.getValue();
+    assertThat(savedPost.getTitle()).isEqualTo("제목");
+    assertThat(savedPost.getCategory()).isEqualTo(category);
+    assertThat(savedPost.getPostTags()).hasSize(2);
+    assertThat(category.getPostCount()).isEqualTo(1);
+
+    assertThat(result).isEqualTo(savedPost);
   }
 
   @Test
-  void givenSlug_whenGetPostWithDetails_thenFound() {
-    Post post = postService.createPost(postCreateDto, AUTHOR);
-    PostDetailResponseDto found = postService.getPostBySlug(post.getSlug());
-    assertThat(found).isNotNull();
-    assertThat(found.id()).isEqualTo(post.getId());
-    assertThat(found.slug()).isEqualTo(post.getSlug());
-    assertThat(found.viewCount()).isEqualTo(1);
+  @DisplayName("게시글 생성 실패: 중복된 슬러그가 존재하면 예외가 발생한다")
+  void testCreatePostWithDuplicateSlug() {
+    // given
+    given(postRepository.existsBySlug(anyString())).willReturn(true);
+
+    // when & then
+    assertThatThrownBy(() -> postService.createPost(postCreateDto, AUTHOR_EMAIL))
+        .isInstanceOf(DuplicateResourceException.class);
   }
 
   @Test
-  void givenTagsExists_whenFindPost_thenReturnWithDetails() {
-    Long categoryId = postCreateDto.categoryId();
-    Tag tag = tagRepository.save(Tag.builder().name("test-tag").slug("test-slug").build());
-    postCreateDto = new PostCreateDto(
-        categoryId,
-        postCreateDto.title(),
-        postCreateDto.content(),
-        postCreateDto.summary(),
-        postCreateDto.slug(),
-        postCreateDto.status(),
-        List.of(tag.getId())
-    );
+  @DisplayName("게시글 생성 실패: 존재하지 않는 카테고리 ID일 경우 예외가 발생한다")
+  void testCreatePostWithCategoryNotFound() {
+    // given
+    Long categoryId = 1L;
+    PostCreateDto dto = new PostCreateDto(categoryId, "제목", "내용", "요약", "slug", "PUBLISHED",
+        List.of());
+    given(categoryRepository.findById(categoryId)).willReturn(Optional.empty());
 
-    Post post = postService.createPost(postCreateDto, AUTHOR);
-    PostDetailResponseDto found = postService.getPostBySlug(post.getSlug());
-    assertThat(found).isNotNull();
-    assertThat(found.id()).isEqualTo(post.getId());
-    assertThat(found.slug()).isEqualTo(post.getSlug());
-    assertThat(found.viewCount()).isEqualTo(1);
-
-    List<TagResponseDto> tags = found.tags();
-    assertThat(tags).hasSize(1);
-    assertThat(tags.get(0).name()).isEqualTo(tag.getName());
-    assertThat(tags.get(0).slug()).isEqualTo(tag.getSlug());
+    // when & then
+    assertThatThrownBy(() -> postService.createPost(dto, AUTHOR_EMAIL))
+        .isInstanceOf(ResourceNotFoundException.class);
   }
 
   @Test
-  void given5PostCreated_whenRequestedAllPost_thenReturnPageOrderedByCreatedDate() {
-    for (int i = 0; i < 5; i++) {
-      postService.createPost(
-          new PostCreateDto(postCreateDto.categoryId(),
-              postCreateDto.title(), postCreateDto.content(), postCreateDto.summary(),
-              "test-slug" + i, PostStatus.PUBLISHED.name(), List.of()), AUTHOR);
-    }
-    Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "createdAt");
-    Pageable pageable = PageRequest.of(0, 10, sort);
-    Page<PostSummaryResponseDto> page = postService.getAllPosts(null, PostStatus.PUBLISHED, null,
+  @DisplayName("게시글 정보 업데이트 시 필드 값이 변경되어야 한다.")
+  void testUpdatePost() {
+    // given
+    Long postId = 1L;
+    Category oldCategory = CategoryFixtureFactory.createFixture("Old", "old");
+    Category newCategory = CategoryFixtureFactory.createFixture("New", "new");
+    ReflectionTestUtils.setField(oldCategory, "id", 1L);
+    ReflectionTestUtils.setField(newCategory, "id", 2L);
+    oldCategory.increasePostCount(); // 초기 카운트 1
+
+    Post post = PostFixtureFactory.createFixture(oldCategory,
+        UserFixtureFactory.createAdminFixture());
+    ReflectionTestUtils.setField(post, "id", postId);
+
+    PostUpdateDto updateDto = new PostUpdateDto(2L, "새 제목", "새 내용", "새 요약", "new-slug", "PUBLISHED",
+        List.of());
+
+    given(markdownService.convertToHtml(anyString())).willReturn("<p>테스트 내용</p>");
+    given(categoryRepository.findById(2L)).willReturn(Optional.of(newCategory));
+    given(postRepository.findByIdWithDetails(postId)).willReturn(post);
+    given(postRepository.existsBySlug("new-slug")).willReturn(false);
+
+    // when
+    postService.updatePost(postId, updateDto);
+
+    // then
+    assertThat(post.getTitle()).isEqualTo("새 제목");
+    assertThat(post.getSlug()).isEqualTo("new-slug");
+    assertThat(post.getCategory()).isEqualTo(newCategory);
+    assertThat(oldCategory.getPostCount()).isZero();
+    assertThat(newCategory.getPostCount()).isEqualTo(1);
+  }
+
+  @Test
+  @DisplayName("게시글 삭제 테스트")
+  void testDeletePost() {
+    // given
+    Long postId = 1L;
+    given(postRepository.existsById(postId)).willReturn(true);
+
+    // when
+    postService.deletePost(postId);
+
+    // then
+    then(postRepository).should().deleteById(postId);
+  }
+
+  @Test
+  @DisplayName("게시글 삭제 실패: 존재하지 않는 게시글일 경우 예외가 발생한다")
+  void testDeletePostNotFound() {
+    // given
+    Long postId = 1L;
+    given(postRepository.existsById(postId)).willReturn(false);
+
+    // when & then
+    assertThatThrownBy(() -> postService.deletePost(postId))
+        .isInstanceOf(ResourceNotFoundException.class);
+  }
+
+  @Test
+  @DisplayName("슬러그로 게시글 상세 조회 시 게시글을 반환하고 조회수가 증가해야 한다.")
+  void testGetPostBySlug() {
+    // given
+    String slug = "test-slug";
+    Post post = PostFixtureFactory.createFixture();
+    ReflectionTestUtils.setField(post, "slug", slug);
+    given(postRepository.findBySlugWithDetails(slug)).willReturn(Optional.of(post));
+
+    // when
+    PostDetailResponseDto result = postService.getPostBySlug(slug);
+
+    // then
+    assertThat(result).isNotNull();
+    assertThat(post.getViewCount()).isEqualTo(1);
+  }
+
+  @Test
+  @DisplayName("전체 게시글 조회 시 페이징된 결과를 반환해야 한다.")
+  void testGetAllPosts() {
+    // given
+    Pageable pageable = PageRequest.of(0, 10);
+    List<Post> posts = List.of(PostFixtureFactory.createFixture());
+    Page<Post> page = new PageImpl<>(posts, pageable, 1);
+
+    given(postRepository.findAllPosts(null, PostStatus.PUBLISHED, null, pageable)).willReturn(page);
+
+    // when
+    Page<PostSummaryResponseDto> result = postService.getAllPosts(null, PostStatus.PUBLISHED, null,
         pageable);
-    assertThat(page).isNotNull();
-    assertThat(page.getTotalElements()).isEqualTo(5);
-    assertThat(page.getTotalPages()).isEqualTo(1);
-    assertThat(page.getContent()).hasSize(5);
-  }
 
-  @Test
-  void givenCategory_whenSearch_thenReturnPageSortedByCategory() {
-    Category category = categoryRepository.findById(postCreateDto.categoryId()).orElseThrow();
-    for (int i = 0; i < 5; i++) {
-      postService.createPost(
-          new PostCreateDto(postCreateDto.categoryId(),
-              "카테고리 있는 게시글" + i, postCreateDto.content(), postCreateDto.summary(),
-              "categorized-slug" + i, PostStatus.PUBLISHED.name(), List.of()), AUTHOR);
-    }
-    for (int i = 0; i < 5; i++) {
-      postService.createPost(
-          new PostCreateDto(null,
-              postCreateDto.title(), postCreateDto.content(), postCreateDto.summary(),
-              "just-slug" + i, PostStatus.PUBLISHED.name(), List.of()), AUTHOR);
-    }
-    Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "createdAt");
-    Pageable pageable = PageRequest.of(0, 10, sort);
-    Page<PostSummaryResponseDto> page = postService.getAllPosts(
-        category.getId(),
-        PostStatus.PUBLISHED,
-        null,
-        pageable);
-    assertThat(page).isNotNull();
-    assertThat(page.getTotalElements()).isEqualTo(5);
-    assertThat(page.getTotalPages()).isEqualTo(1);
-    List<PostSummaryResponseDto> contents = page.getContent();
-    assertThat(contents).hasSize(5);
-    assertThat(contents).allMatch(post -> post.title().contains("카테고리"));
-  }
-
-  @Test
-  void givenKeyword_whenSearch_thenReturnSearchResult() {
-    for (int i = 0; i < 5; i++) {
-      postService.createPost(
-          new PostCreateDto(null,
-              "키워드 있는 게시글" + i, postCreateDto.content(), postCreateDto.summary(),
-              "keyword-slug" + i, PostStatus.PUBLISHED.name(), List.of()), AUTHOR);
-    }
-    for (int i = 0; i < 5; i++) {
-      postService.createPost(
-          new PostCreateDto(null,
-              "일반 게시글", postCreateDto.content(), postCreateDto.summary(),
-              "just-slug" + i, PostStatus.PUBLISHED.name(), List.of()), AUTHOR);
-    }
-    String keyword = "키워드";
-    Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "createdAt");
-    Pageable pageable = PageRequest.of(0, 10, sort);
-    Page<PostSummaryResponseDto> page = postService.getAllPosts(null, PostStatus.PUBLISHED, keyword,
-        pageable);
-    assertThat(page).isNotNull();
-    assertThat(page.getTotalElements()).isEqualTo(5);
-    assertThat(page.getTotalPages()).isEqualTo(1);
-    List<PostSummaryResponseDto> contents = page.getContent();
-    assertThat(contents).hasSize(5);
-    assertThat(contents).allMatch(
-        post -> post.title().contains(keyword));
+    // then
+    assertThat(result).isNotNull();
+    assertThat(result.getContent()).hasSize(1);
+    then(postRepository).should().findAllPosts(null, PostStatus.PUBLISHED, null, pageable);
   }
 
 }
