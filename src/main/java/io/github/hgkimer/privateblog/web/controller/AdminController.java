@@ -11,6 +11,8 @@ import io.github.hgkimer.privateblog.web.dto.response.TagResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,10 +42,10 @@ public class AdminController {
     return request.getRequestURI();
   }
 
-  @GetMapping("/dashboard")
-  public String dashboard(Model model) {
-    return "admin/dashboard";
-  }
+//  @GetMapping("/dashboard")
+//  public String dashboard(Model model) {
+//    return "admin/dashboard";
+//  }
 
   @GetMapping("/posts")
   public String postManagement(
@@ -78,7 +80,7 @@ public class AdminController {
       if (!queryParams.isEmpty()) {
         queryParams.append("&");
       }
-      queryParams.append("keyword=").append(keyword);
+      queryParams.append("keyword=").append(URLEncoder.encode(keyword, StandardCharsets.UTF_8));
     }
     if (statusText != null) {
       if (!queryParams.isEmpty()) {

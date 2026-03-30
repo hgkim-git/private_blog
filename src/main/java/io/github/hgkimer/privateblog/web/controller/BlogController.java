@@ -9,6 +9,8 @@ import io.github.hgkimer.privateblog.web.dto.response.PostDetailResponseDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostSummaryResponseDto;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -62,7 +64,7 @@ public class BlogController {
       if (!queryParams.isEmpty()) {
         queryParams.append("&");
       }
-      queryParams.append("keyword=").append(keyword);
+      queryParams.append("keyword=").append(URLEncoder.encode(keyword, StandardCharsets.UTF_8));
     }
     if (!queryParams.isEmpty()) {
       queryParams.append("&");
