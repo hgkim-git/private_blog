@@ -59,7 +59,6 @@ public class PostApiController {
   @PatchMapping("/{id}")
   public ResponseEntity<PostDetailResponseDto> updatePost(@PathVariable @Positive Long id,
       @Valid @RequestBody PostUpdateDto postUpdateDto) {
-    // TODO: Authorization check
     PostDetailResponseDto responseDto = PostDetailResponseDto.from(
         postService.updatePost(id, postUpdateDto));
     return ResponseEntity.ok(responseDto);

@@ -33,9 +33,9 @@ public class CategoryService {
     categoryRepository.deleteById(id);
   }
 
-  public Category updateCategory(Long id, Category updatedCategory) {
+  public Category updateCategory(Long id, Category target) {
     Category category = getCategoryById(id);
-    category.update(updatedCategory.getName(), updatedCategory.getSlug());
+    category.update(target.getName(), target.getSlug());
     return category;
   }
 

@@ -23,7 +23,7 @@ class JwtTokenProviderTest {
     // HS256 알고리즘에 필요한 크기(최소 256비트)의 시크릿 키 생성
     String secretKey = Base64.getEncoder()
         .encodeToString("my-secure-test-secret-key-that-is-long-enough-for-hs256".getBytes());
-    jwtProperties = new JwtProperties(secretKey, 3600000L, "XSRF-TOKEN", false);
+    jwtProperties = new JwtProperties(secretKey, 3600000L, "access-token", false);
     jwtTokenProvider = new JwtTokenProvider(jwtProperties);
 
     userPrincipal = UserPrincipal.builder()

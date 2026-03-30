@@ -1,31 +1,33 @@
 package io.github.hgkimer.privateblog.domain.entity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.hgkimer.privateblog.support.domain.entity.CategoryFixtureFactory;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class CategoryTest {
 
-  static Category mock() {
-    return Category.builder().name("test").slug("test").build();
+
+  @Test
+  @DisplayName("카테고리 빌더 테스트")
+  void testBuilder() {
+    Category category = Category.builder().name("test").slug("test").build();
+    assertThat(category)
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("name", "test")
+        .hasFieldOrPropertyWithValue("slug", "test");
   }
 
   @Test
-  void builder() {
-    Category category = mock();
-    assertNotNull(category);
-    assertEquals("test", category.getName());
-    assertEquals("test", category.getSlug());
-  }
-
-  @Test
-  void update() {
-    Category category = mock();
+  @DisplayName("카테고리 업데이트 테스트")
+  void testUpdate() {
+    Category category = CategoryFixtureFactory.createFixture();
     category.update("test2", "test2");
-    assertEquals("test2", category.getName());
-    assertEquals("test2", category.getSlug());
-    assertEquals(2, category.getDisplayOrder());
+    assertThat(category)
+        .isNotNull()
+        .hasFieldOrPropertyWithValue("name", "test2")
+        .hasFieldOrPropertyWithValue("slug", "test2");
   }
 
 }

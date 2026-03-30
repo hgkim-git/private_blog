@@ -6,28 +6,33 @@ import static org.mockito.BDDMockito.given;
 
 import io.github.hgkimer.privateblog.domain.entity.Tag;
 import io.github.hgkimer.privateblog.service.TagService;
+import io.github.hgkimer.privateblog.support.web.controller.ControllerSliceTest;
+import io.github.hgkimer.privateblog.support.web.controller.ControllerTestBase;
 import io.github.hgkimer.privateblog.web.dto.response.TagResponseDto;
 import io.github.hgkimer.privateblog.web.exception.ErrorCode;
 import io.github.hgkimer.privateblog.web.exception.ErrorResponse;
 import io.github.hgkimer.privateblog.web.exception.FieldErrorResponse;
 import io.github.hgkimer.privateblog.web.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@WebMvcTest(TagApiController.class)
-class TagApiControllerTest {
+@ControllerSliceTest(TagApiController.class)
+class TagApiControllerTest extends ControllerTestBase {
 
   private final String uriRoot = "/api/tags";
+
   @Autowired
   private MockMvcTester mockMvcTester;
+
   @MockitoBean
   private TagService tagService;
+
   private Tag tag;
 
   @BeforeEach
@@ -36,6 +41,7 @@ class TagApiControllerTest {
   }
 
   @Test
+  @DisplayName("유효한 JSON으로 태그 생성 시 201 Created 응답을 반환해야 한다.")
   void givenValidJSON_whenCreateTag_thenResponseCreated() {
     // given
     given(tagService.createTag(any())).willReturn(tag);
@@ -59,6 +65,7 @@ class TagApiControllerTest {
   }
 
   @Test
+  @DisplayName("유효하지 않은 슬러그로 태그 생성 시 400 Bad Request 응답을 반환해야 한다.")
   void givenInvalidSlug_whenCreateTag_thenThrowBadRequest() {
     String json = """
         {
@@ -82,6 +89,7 @@ class TagApiControllerTest {
   }
 
   @Test
+  @DisplayName("ID로 태그 삭제 시 204 No Content 응답을 반환해야 한다.")
   void givenId_whenDelete_thenResponseNoContent() {
     mockMvcTester.delete().uri(uriRoot + "/1")
         .exchange()
@@ -90,6 +98,7 @@ class TagApiControllerTest {
   }
 
   @Test
+  @DisplayName("ID로 태그 수정 시 200 OK 응답을 반환해야 한다.")
   void givenId_whenUpdate_thenResponseOk() {
     Tag updated = Tag.builder().name("updated name").slug("updated-slug").build();
     given(tagService.updateTag(any(), any())).willReturn(updated);
@@ -114,6 +123,7 @@ class TagApiControllerTest {
   }
 
   @Test
+  @DisplayName("ID로 태그 조회 시 200 OK 응답을 반환해야 한다.")
   void givenId_whenGetTag_thenResponseOk() {
     given(tagService.getTagById(any())).willReturn(tag);
     mockMvcTester.get().uri(uriRoot + "/1")
@@ -129,6 +139,7 @@ class TagApiControllerTest {
   }
 
   @Test
+  @DisplayName("존재하지 않는 ID로 태그 조회 시 404 Not Found 응답을 반환해야 한다.")
   void givenWrongId_whenGetTag_thenThrowNotFound() {
     given(tagService.getTagById(any())).willThrow(new ResourceNotFoundException(
         ErrorCode.TAG_NOT_FOUND));

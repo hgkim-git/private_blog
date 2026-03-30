@@ -5,21 +5,37 @@ import static org.assertj.core.api.Assertions.assertThat;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class TagCreateDtoTest {
 
+  private static ValidatorFactory validatorFactory;
   private Validator validator;
 
+  @BeforeAll
+  static void setUpFactory() {
+    validatorFactory = Validation.buildDefaultValidatorFactory();
+  }
+
+  @AfterAll
+  static void tearDownFactory() {
+    validatorFactory.close();
+  }
+
   @BeforeEach
-  void setUp() {
-    validator = Validation.buildDefaultValidatorFactory().getValidator();
+  void setUpValidator() {
+    validator = validatorFactory.getValidator();
   }
 
   @Test
+  @DisplayName("유효한 태그 생성 DTO 검증 테스트")
   void givenValid_WhenValidating_ThenConstraintViolations() {
     TagCreateDto dto = new TagCreateDto("valid", "valid");
     Set<ConstraintViolation<TagCreateDto>> violations = validator.validate(dto);
@@ -27,6 +43,7 @@ class TagCreateDtoTest {
   }
 
   @Test
+  @DisplayName("이름 또는 슬러그가 비어있는 태그 생성 DTO 검증 시 제약 조건 위반이 발생해야 한다.")
   void givenNullOrEmpty_WhenValidating_ThenConstraintViolations() {
     TagCreateDto nullName = new TagCreateDto(null, "slug");
     TagCreateDto emptyName = new TagCreateDto("", "slug");
@@ -50,6 +67,7 @@ class TagCreateDtoTest {
   }
 
   @Test
+  @DisplayName("유효하지 않은 형식의 슬러그를 가진 태그 생성 DTO 검증 시 제약 조건 위반이 발생해야 한다.")
   void givenInvalidSlug_WhenValidating_ThenConstraintViolations() {
     TagCreateDto invalidSlug = new TagCreateDto("name", "CAPITAL-contain");
 

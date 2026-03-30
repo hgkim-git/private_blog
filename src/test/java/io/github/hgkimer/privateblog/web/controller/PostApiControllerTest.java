@@ -12,8 +12,10 @@ import io.github.hgkimer.privateblog.domain.entity.Tag;
 import io.github.hgkimer.privateblog.domain.entity.User;
 import io.github.hgkimer.privateblog.domain.enums.PostStatus;
 import io.github.hgkimer.privateblog.domain.enums.UserRole;
-import io.github.hgkimer.privateblog.security.JwtTokenProvider;
+import io.github.hgkimer.privateblog.service.CategoryService;
 import io.github.hgkimer.privateblog.service.PostService;
+import io.github.hgkimer.privateblog.support.web.controller.ControllerSliceTest;
+import io.github.hgkimer.privateblog.support.web.controller.ControllerTestBase;
 import io.github.hgkimer.privateblog.web.dto.response.PostDetailResponseDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostSummaryResponseDto;
 import io.github.hgkimer.privateblog.web.exception.ErrorCode;
@@ -22,9 +24,9 @@ import io.github.hgkimer.privateblog.web.exception.FieldErrorResponse;
 import io.github.hgkimer.privateblog.web.exception.ResourceNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
@@ -32,16 +34,20 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@WebMvcTest(PostApiController.class)
-class PostApiControllerTest {
+@ControllerSliceTest(PostApiController.class)
+class PostApiControllerTest extends ControllerTestBase {
 
   private final String uriRoot = "/api/posts";
+
   @Autowired
   private MockMvcTester mockMvcTester;
+
   @MockitoBean
   private PostService postService;
+
   @MockitoBean
-  private JwtTokenProvider jwtTokenProvider;
+  private CategoryService categoryService;
+
   private Post post;
 
   @BeforeEach
@@ -74,6 +80,7 @@ class PostApiControllerTest {
   }
 
   @Test
+  @DisplayName("유효한 JSON으로 게시글 생성 시 201 Created 응답을 반환해야 한다.")
   void givenValidJSON_whenCreatePost_thenResponseCreated() {
     given(postService.createPost(any(), any())).willReturn(post);
     String json = """
@@ -104,6 +111,7 @@ class PostApiControllerTest {
   }
 
   @Test
+  @DisplayName("유효하지 않은 슬러그로 게시글 생성 시 400 Bad Request 응답을 반환해야 한다.")
   void givenInvalidSlug_whenCreatePost_thenThrowBadRequest() {
     String json = """
         {
@@ -131,6 +139,7 @@ class PostApiControllerTest {
   }
 
   @Test
+  @DisplayName("ID로 게시글 삭제 시 204 No Content 응답을 반환해야 한다.")
   void givenId_whenDeletePost_thenResponseNoContent() {
     mockMvcTester.delete().uri(uriRoot + "/1")
         .exchange()
@@ -139,6 +148,7 @@ class PostApiControllerTest {
   }
 
   @Test
+  @DisplayName("유효한 파라미터로 게시글 수정 시 200 OK 응답을 반환해야 한다.")
   void givenValidParam_whenUpdatePost_thenResponseOk() {
     Post updated = Post.builder()
         .author(post.getAuthor())
@@ -177,6 +187,7 @@ class PostApiControllerTest {
   }
 
   @Test
+  @DisplayName("슬러그로 게시글 상세 조회 시 200 OK 응답을 반환해야 한다.")
   void givenSlug_whenGetPost_thenResponseOk() {
     PostDetailResponseDto responseDto = PostDetailResponseDto.from(post);
     given(postService.getPostBySlug(anyString())).willReturn(responseDto);
@@ -193,6 +204,7 @@ class PostApiControllerTest {
   }
 
   @Test
+  @DisplayName("존재하지 않는 슬러그로 게시글 조회 시 404 Not Found 응답을 반환해야 한다.")
   void givenWrongSlug_whenGetPost_thenThrowNotFound() {
     given(postService.getPostBySlug(anyString())).willThrow(
         new ResourceNotFoundException(ErrorCode.POST_NOT_FOUND, "wrong-slug"));
@@ -207,6 +219,7 @@ class PostApiControllerTest {
   }
 
   @Test
+  @DisplayName("유효하지 않은 형식의 슬러그로 게시글 조회 시 400 Bad Request 응답을 반환해야 한다.")
   void givenInvalidSlug_whenGetPost_thenThrowBadRequest() {
     mockMvcTester.get().uri(uriRoot + "/INVALID_SLUG!")
         .exchange()
@@ -215,6 +228,7 @@ class PostApiControllerTest {
   }
 
   @Test
+  @DisplayName("게시글 목록 조회 시 200 OK 응답을 반환해야 한다.")
   void givenNoParam_whenGetAllPosts_thenResponseOk() {
     Page<PostSummaryResponseDto> page = new PageImpl<>(List.of());
     given(postService.getAllPosts(any(), any(), any(), any())).willReturn(page);
