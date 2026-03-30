@@ -14,9 +14,9 @@ spring:
       ddl-auto: update
 
 jwt:
-  secret-key: OE9256/E7NmKlhCYnakPTCGb9/oYww5BJoB1xaamT16LR7QAroL+pE5UUba9nnQ5 # prod 에선 환경 변수 처리 필요
-  access-token-expiration: 86400000 # access token 만료 시간(ms) 관리자 페이지라 혼자만 로그인하니까 하루로 잡음
-  cookie-name: access-token
+  secret-key: ${JWT_SECRET_KEY}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:86400000} # (ms)
+  cookie-name: ${JWT_COOKIE_NAME:access-token}
   use-secure-cookie: false # http: false / https: true
 
 logging:
