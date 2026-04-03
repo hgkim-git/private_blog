@@ -132,7 +132,8 @@ public class PostService {
     Post post = postRepository.findBySlugWithDetails(slug)
         .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.POST_NOT_FOUND, slug));
     postRepository.increaseViewCount(post.getId());
-    return PostDetailResponseDto.from(postRepository.findByIdWithDetails(post.getId()));
+    post.increaseViewCount();
+    return PostDetailResponseDto.from(post);
   }
 
   @Transactional(readOnly = true)

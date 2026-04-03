@@ -244,6 +244,7 @@ class PostServiceTest {
     assertThat(result).isNotNull();
     assertThat(result.id()).isEqualTo(1L);
     then(postRepository).should().increaseViewCount(post.getId());
+    assertThat(post.getViewCount()).isEqualTo(1);
   }
 
   @Test

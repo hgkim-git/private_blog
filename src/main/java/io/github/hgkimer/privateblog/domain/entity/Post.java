@@ -116,6 +116,10 @@ public class Post extends BaseTimeEntity {
     this.postTags.addAll(postTags);
   }
 
+  public void increaseViewCount() {
+    this.viewCount++;
+  }
+
   public void update(String title, String content, String contentHtml, String summary, String slug,
       Category category) {
     this.title = title;
