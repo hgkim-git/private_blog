@@ -21,6 +21,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,9 +45,9 @@ public class PostApiController {
   @PostMapping()
   public ResponseEntity<PostDetailResponseDto> createPost(
       @RequestBody @Valid PostCreateDto postCreateDto,
-      @AuthenticationPrincipal String email) {
+      @AuthenticationPrincipal UserDetails userDetails) {
     PostDetailResponseDto responseDto = PostDetailResponseDto.from(
-        postService.createPost(postCreateDto, email));
+        postService.createPost(postCreateDto, userDetails.getUsername()));
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
 
