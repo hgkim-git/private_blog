@@ -8,11 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping("/")
 @RequiredArgsConstructor
 public class MainController {
 
-  @RequestMapping("")
+  @RequestMapping("/")
   public String landing() {
     return "redirect:/posts";
   }
@@ -30,6 +29,6 @@ public class MainController {
     if (logout != null && logout) {
       model.addAttribute("logoutMessage", "로그아웃되었습니다.");
     }
-    return "/login";
+    return "login";
   }
 }
