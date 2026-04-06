@@ -14,6 +14,8 @@ public class JsoupConfig {
     // <h1> ~ <h6> for Table of Contents
     IntStream.range(1, 7)
         .forEach(i -> safelist.addAttributes("h" + i, "id"));
+    // for Highlight.js code block decorating
+    safelist.addAttributes("code", "class");
     return safelist;
   }
 }

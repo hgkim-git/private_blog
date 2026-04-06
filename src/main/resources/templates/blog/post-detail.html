@@ -4,6 +4,7 @@
       xmlns:th="http://www.thymeleaf.org">
 <head>
   <title th:text="${post.title}">제목</title>
+  <link rel="stylesheet" th:href="@{/js/lib/highlight/atom-one-dark.min.css}">
 </head>
 <body>
 <!-- Main Layout -->
@@ -112,5 +113,11 @@
     </main>
   </div>
 </div>
+<th:block layout:fragment="scripts">
+  <script type="module">
+    import hljs from '/js/lib/highlight/highlight.min.js';
+    hljs.highlightAll();
+  </script>
+</th:block>
 </body>
 </html>
