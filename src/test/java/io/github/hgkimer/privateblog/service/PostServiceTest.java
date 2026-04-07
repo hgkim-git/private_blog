@@ -28,6 +28,7 @@ import io.github.hgkimer.privateblog.web.dto.response.PostDetailResponseDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostSummaryResponseDto;
 import io.github.hgkimer.privateblog.web.exception.DuplicateResourceException;
 import io.github.hgkimer.privateblog.web.exception.ResourceNotFoundException;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +64,9 @@ class PostServiceTest {
 
   @Mock
   private MarkdownService markdownService;
+
+  @Mock
+  private EntityManager entityManager;
 
   @InjectMocks
   private PostService postService;
@@ -242,6 +246,8 @@ class PostServiceTest {
     // then
     assertThat(result).isNotNull();
     assertThat(result.id()).isEqualTo(1L);
+    then(entityManager).should().refresh(post);
+    ReflectionTestUtils.setField(post, "viewCount", post.getViewCount() + 1);
     then(postRepository).should().increaseViewCount(post.getId());
     assertThat(post.getViewCount()).isEqualTo(1);
   }
