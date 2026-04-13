@@ -1,8 +1,7 @@
-package io.github.hgkimer.privateblog.service;
+package io.github.hgkimer.privateblog.security;
 
 import io.github.hgkimer.privateblog.domain.entity.User;
 import io.github.hgkimer.privateblog.persistence.jpa.UserRepository;
-import io.github.hgkimer.privateblog.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

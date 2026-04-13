@@ -1,6 +1,9 @@
-export function goTo(path = null, options = {}) {
+export async function goTo(path = null, options = {}) {
   if (typeof path === 'object') {
     options = path;
+    path = window.location.href;
+  }
+  if (path === null) {
     path = window.location.href;
   }
   let destinationURL;

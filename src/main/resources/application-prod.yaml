@@ -4,6 +4,13 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USER}
+      password: ${REDIS_PASSWORD}
+      # database: ${REDIS_DATABASE:0} # 로컬에서만 Redis Cloud는 선택 불가
   jpa:
     hibernate:
       ddl-auto: validate
@@ -27,8 +34,10 @@ logging:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
-  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:86400000} # (ms)
-  cookie-name: ${JWT_COOKIE_NAME:access-token}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+  cookie-name: ${JWT_COOKIE_NAME}
+  refresh-cookie-name: ${JWT_REFRESH_COOKIE_NAME}
   use-secure-cookie: true # http: false / https: true
 
 

@@ -94,6 +94,7 @@ dependencies {
     implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.4.0")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     "developmentOnly"("org.springframework.boot:spring-boot-devtools")
 
     // Lombok
