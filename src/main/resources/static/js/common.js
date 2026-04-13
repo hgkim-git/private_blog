@@ -1,3 +1,4 @@
+import {api} from '/js/utils/api.js';
 import {goTo} from '/js/utils/nav.js';
 
 // 로그아웃
@@ -5,10 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
-      goTo('/admin/login', {params: {logout: true}});
+      try {
+        await api.post('/api/auth/logout');
+      } catch (error) {
+        console.error('Logout request failed:', error);
+      } finally {
+        await goTo('/admin/login', {params: {logout: true}});
+      }
     });
   }
 });
