@@ -52,6 +52,7 @@ public class SecurityConfig {
                         "/admin/login",
                         "/api/auth/login",
                         "/api/auth/refresh",
+                        "/sitemap.xml",
                         "/css/**",
                         "/js/**",
                         "/img/**").permitAll()

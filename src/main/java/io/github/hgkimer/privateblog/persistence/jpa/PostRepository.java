@@ -2,6 +2,7 @@ package io.github.hgkimer.privateblog.persistence.jpa;
 
 import io.github.hgkimer.privateblog.domain.entity.Post;
 import io.github.hgkimer.privateblog.domain.enums.PostStatus;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,5 +52,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   @Modifying
   @Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 WHERE p.id = :id")
   void increaseViewCount(@Param("id") Long id);
+
+  List<Post> findAllPostByStatus(PostStatus status);
+
 
 }

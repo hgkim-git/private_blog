@@ -23,14 +23,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class PostService {
 
   private final PostRepository postRepository;
@@ -146,6 +150,19 @@ public class PostService {
       Pageable pageable) {
     return postRepository.findAllPosts(categoryId, status, keyword, pageable).map(
         PostSummaryResponseDto::from);
+  }
+
+  @Transactional(readOnly = true)
+  public List<Post> getAllPublishedPosts() {
+    return postRepository.findAllPostByStatus(PostStatus.PUBLISHED);
+  }
+
+  @Scheduled(cron = "0 0 3 * * *")
+  @CacheEvict(value = "sitemap", allEntries = true)
+  public void invalidateSitemapCache() {
+    if (log.isDebugEnabled()) {
+      log.debug("Invalidating sitemap cache");
+    }
   }
 
   private void validateCategory(Long categoryId) {
