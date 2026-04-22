@@ -12,12 +12,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class CategoryService {
 
   private final CategoryRepository categoryRepository;
@@ -81,6 +84,15 @@ public class CategoryService {
   public Category getCategoryBySlug(String slug) {
     return categoryRepository.findBySlug(slug).orElseThrow(() -> new ResourceNotFoundException(
         ErrorCode.CATEGORY_NOT_FOUND, slug));
+  }
+
+  @Scheduled(cron = "@hourly")
+  public void updateCategoryPostCounts() {
+    log.info("Scheduled adjusting category post counts invoked");
+    long start = System.currentTimeMillis();
+    categoryRepository.updateCategoriesPostCounts();
+    long end = System.currentTimeMillis();
+    log.info("Category post counts adjusting completed in {} ms", end - start);
   }
 
 }

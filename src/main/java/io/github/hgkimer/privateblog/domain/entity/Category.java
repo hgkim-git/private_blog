@@ -58,13 +58,4 @@ public class Category extends BaseTimeEntity {
     this.displayOrder = displayOrder;
   }
 
-  public void increasePostCount() {
-    this.postCount++;
-  }
-
-  public void decreasePostCount() {
-    if (this.postCount > 0) {
-      this.postCount--;
-    }
-  }
 }

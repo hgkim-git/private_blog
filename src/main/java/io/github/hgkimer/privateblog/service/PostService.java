@@ -70,9 +70,6 @@ public class PostService {
     );
     List<Tag> tags = tagRepository.findTagByIdIn(postCreateDto.tagIds());
     addTags(post, tags);
-    if (category != null) {
-      category.increasePostCount();
-    }
     return postRepository.save(post);
   }
 
@@ -92,7 +89,6 @@ public class PostService {
     }
 
     String contentHtml = markdownService.convertToHtml(postUpdateDto.content());
-    Category oldCategory = post.getCategory();
     Category category = getOptionalCategory(categoryId);
     post.update(
         postUpdateDto.title(),
@@ -107,12 +103,6 @@ public class PostService {
       post.publish();
     } else if ("DRAFT".equals(status)) {
       post.draft();
-    }
-    if (oldCategory != null) {
-      oldCategory.decreasePostCount();
-    }
-    if (category != null) {
-      category.increasePostCount();
     }
     List<Tag> tags = tagRepository.findTagByIdIn(postUpdateDto.tagIds());
     addTags(post, tags);

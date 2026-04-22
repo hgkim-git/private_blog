@@ -140,7 +140,6 @@ class PostServiceTest {
     assertThat(savedPost.getTitle()).isEqualTo("제목");
     assertThat(savedPost.getCategory()).isEqualTo(category);
     assertThat(savedPost.getPostTags()).hasSize(2);
-    assertThat(category.getPostCount()).isEqualTo(1);
 
     assertThat(result).isEqualTo(savedPost);
   }
@@ -179,7 +178,6 @@ class PostServiceTest {
     Category newCategory = CategoryFixtureFactory.createFixture("New", "new");
     ReflectionTestUtils.setField(oldCategory, "id", 1L);
     ReflectionTestUtils.setField(newCategory, "id", 2L);
-    oldCategory.increasePostCount(); // 초기 카운트 1
 
     Post post = PostFixtureFactory.createFixture(oldCategory,
         UserFixtureFactory.createAdminFixture());
@@ -201,7 +199,6 @@ class PostServiceTest {
     assertThat(post.getSlug()).isEqualTo("new-slug");
     assertThat(post.getCategory()).isEqualTo(newCategory);
     assertThat(oldCategory.getPostCount()).isZero();
-    assertThat(newCategory.getPostCount()).isEqualTo(1);
   }
 
   @Test
