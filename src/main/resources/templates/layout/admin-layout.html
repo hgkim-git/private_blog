@@ -3,6 +3,7 @@
       xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title layout:title-pattern="$CONTENT_TITLE : $LAYOUT_TITLE">관리자</title>
   <link rel="stylesheet" th:href="@{/css/common.css}">
   <link rel="stylesheet" th:href="@{/css/admin/admin-layout.css}">
@@ -11,6 +12,7 @@
 </head>
 <body>
 <header th:replace="~{fragments/admin/header :: header}"></header>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <!-- Layout -->
 <div class="layout">
   <!-- Sidebar -->

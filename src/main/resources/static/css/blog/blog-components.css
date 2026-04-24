@@ -625,3 +625,66 @@
     font-size: 13px;
   }
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  /* 포스트 그리드 */
+  .posts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* 포스트 상세 */
+  .post-detail {
+    padding: 20px 16px;
+  }
+
+  .post-detail-title {
+    font-size: 22px;
+  }
+
+  .post-detail-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* 본문 헤딩 */
+  .post-content h1 { font-size: 22px; }
+  .post-content h2 { font-size: 20px; }
+  .post-content h3 { font-size: 18px; }
+  .post-content h4 { font-size: 16px; }
+
+  /* 테이블 가로 스크롤 */
+  .post-content table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  /* TOC 숨김 */
+  .toc-sidebar {
+    display: none;
+  }
+
+  /* 댓글 폼 1열 */
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comments-header {
+    font-size: 18px;
+  }
+
+  .comment-form {
+    padding: 16px;
+  }
+
+  /* 빈 상태 */
+  .empty-title {
+    font-size: 20px;
+  }
+
+  .empty-state {
+    padding: 40px 20px;
+    min-height: 300px;
+  }
+}
