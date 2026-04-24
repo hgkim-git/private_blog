@@ -1,6 +1,23 @@
 import {api} from '/js/utils/api.js';
 import {goTo} from '/js/utils/nav.js';
 
+// 관리자 사이드바 모바일 토글
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      overlay?.classList.toggle('active');
+    });
+    overlay?.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    });
+  }
+});
+
 // 로그아웃
 document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logout-btn');
