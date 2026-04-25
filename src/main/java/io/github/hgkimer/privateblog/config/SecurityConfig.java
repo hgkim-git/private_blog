@@ -55,7 +55,10 @@ public class SecurityConfig {
                         "/sitemap.xml",
                         "/css/**",
                         "/js/**",
-                        "/img/**").permitAll()
+                        "/img/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority("ADMIN")
                     .requestMatchers(HttpMethod.POST).hasAuthority("ADMIN")
                     .requestMatchers(HttpMethod.PATCH).hasAuthority("ADMIN")
