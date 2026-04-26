@@ -206,18 +206,27 @@
   }
 
   .main-layout {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 16px;
     padding: 16px 0;
   }
 
+  /* 사이드바를 레이아웃에서 투명하게 처리 → 자식 요소가 직접 flex 참여 */
   .blog-sidebar {
-    order: 2;
-    position: static;
+    display: contents;
+  }
+
+  .search-box {
+    order: -1; /* 최상단 */
   }
 
   .blog-main {
     order: 1;
+  }
+
+  .sidebar-section {
+    order: 2; /* 포스트 목록 아래 */
   }
 
   .header-nav {
