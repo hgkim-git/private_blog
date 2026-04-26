@@ -639,35 +639,3 @@
   grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
-
-/* Mobile */
-@media (max-width: 768px) {
-  .filter-bar {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .filter-input {
-    width: 100%;
-  }
-
-  .filter-select {
-    width: 100%;
-  }
-
-  .filter-search-group {
-    width: 100%;
-  }
-
-  .management-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .data-table-wrap {
-    overflow-x: auto;
-  }
-
-  .bulk-actions {
-    flex-wrap: wrap;
-  }
-}
