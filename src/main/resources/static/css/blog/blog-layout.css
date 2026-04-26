@@ -192,15 +192,49 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .main-layout {
-    grid-template-columns: 1fr;
+  .blog-container {
+    padding: 0 16px;
   }
 
+  .header-content {
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  .blog-logo {
+    font-size: 22px;
+  }
+
+  .main-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 0;
+  }
+
+  /* 사이드바를 레이아웃에서 투명하게 처리 → 자식 요소가 직접 flex 참여 */
   .blog-sidebar {
-    position: static;
+    display: contents;
+  }
+
+  .search-box {
+    order: -1; /* 최상단 */
+  }
+
+  .blog-main {
+    order: 1;
+  }
+
+  .sidebar-section {
+    order: 2; /* 포스트 목록 아래 */
   }
 
   .header-nav {
     display: none;
+  }
+
+  .blog-footer {
+    margin-top: 40px;
+    padding: 32px 0 20px;
   }
 }
