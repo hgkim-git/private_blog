@@ -636,11 +636,11 @@
 
   /* 포스트 상세 */
   .post-detail {
-    padding: 20px 16px;
+    padding: 16px 14px;
   }
 
   .post-detail-title {
-    font-size: 22px;
+    font-size: 18px;
   }
 
   .post-detail-meta {
@@ -648,11 +648,25 @@
     gap: 8px;
   }
 
+  /* 본문 */
+  .post-content {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
   /* 본문 헤딩 */
-  .post-content h1 { font-size: 22px; }
-  .post-content h2 { font-size: 20px; }
-  .post-content h3 { font-size: 18px; }
-  .post-content h4 { font-size: 16px; }
+  .post-content h1 { font-size: 18px; }
+  .post-content h2 { font-size: 16px; }
+  .post-content h3 { font-size: 15px; }
+  .post-content h4 { font-size: 14px; }
+
+  .post-content h1,
+  .post-content h2,
+  .post-content h3,
+  .post-content h4 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
 
   /* 테이블 가로 스크롤 */
   .post-content table {
