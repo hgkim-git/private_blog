@@ -57,3 +57,8 @@ decorator:
   datasource:
     p6spy:
       enable-logging: false
+
+# Swagger
+springdoc:
+  swagger-ui:
+    try-it-out-enabled: false # 운영에서는 비활성화

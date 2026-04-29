@@ -6,6 +6,8 @@ import io.github.hgkimer.privateblog.web.dto.request.CategoryCreateDto;
 import io.github.hgkimer.privateblog.web.dto.request.CategoryReorderDto;
 import io.github.hgkimer.privateblog.web.dto.request.CategoryUpdateDto;
 import io.github.hgkimer.privateblog.web.dto.response.CategoryResponseDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Category", description = "카테고리 API")
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
@@ -31,6 +34,7 @@ public class CategoryApiController {
 
   private final CategoryService categoryService;
 
+  @Operation(summary = "카테고리 생성")
   @PostMapping()
   public ResponseEntity<CategoryResponseDto> createCategory(
       @RequestBody @Valid CategoryCreateDto createDto) {
@@ -40,6 +44,7 @@ public class CategoryApiController {
     return ResponseEntity.status(HttpStatus.CREATED).body(categoryResponseDto);
   }
 
+  @Operation(summary = "카테고리 단건 조회")
   @GetMapping("/{id}")
   public ResponseEntity<CategoryResponseDto> getCategoryById(@PathVariable @Positive Long id) {
     CategoryResponseDto categoryResponseDto = CategoryResponseDto.from(
@@ -47,12 +52,14 @@ public class CategoryApiController {
     return ResponseEntity.ok(categoryResponseDto);
   }
 
+  @Operation(summary = "카테고리 삭제")
   @DeleteMapping("/{id}")
   public ResponseEntity<Object> deleteCategory(@PathVariable @Positive Long id) {
     categoryService.deleteCategory(id);
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "카테고리 수정")
   @PatchMapping("/{id}")
   public ResponseEntity<CategoryResponseDto> updateCategory(@PathVariable @Positive Long id,
       @Valid @RequestBody CategoryUpdateDto updateDto) {
@@ -62,6 +69,7 @@ public class CategoryApiController {
     return ResponseEntity.ok(categoryResponseDto);
   }
 
+  @Operation(summary = "카테고리 순서 변경")
   @PutMapping("/reorder")
   public ResponseEntity<Void> reorderCategories(
       @RequestBody List<@Valid CategoryReorderDto> orders) {

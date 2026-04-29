@@ -11,6 +11,8 @@ import io.github.hgkimer.privateblog.service.auth.RotatedAuthTokens;
 import io.github.hgkimer.privateblog.web.dto.request.LoginRequestDto;
 import io.github.hgkimer.privateblog.web.support.JwtTokenCookieManager;
 import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Auth", description = "인증 API")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -37,6 +40,7 @@ public class AuthController {
   private final AuthTokenService authTokenService;
   private final JwtTokenCookieManager jwtTokenCookieManager;
 
+  @Operation(summary = "로그인", description = "아이디/비밀번호로 로그인하고 JWT 토큰을 쿠키에 저장합니다.")
   @PostMapping("/login")
   public ResponseEntity<Void> login(@RequestBody LoginRequestDto request,
       HttpServletResponse response) {
@@ -50,6 +54,7 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
+  @Operation(summary = "로그아웃", description = "현재 액세스 토큰을 블랙리스트에 등록하고 쿠키를 삭제합니다.")
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
     jwtTokenCookieManager.removeTokenCookies(response);
@@ -68,6 +73,7 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
+  @Operation(summary = "토큰 갱신", description = "리프레시 토큰으로 새 액세스 토큰을 발급합니다.")
   @PostMapping("/refresh")
   public ResponseEntity<Void> refresh(HttpServletRequest request, HttpServletResponse response) {
     String refreshToken = JwtTokenResolver.resolveToken(request, jwtProperties.refreshCookieName());

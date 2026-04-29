@@ -8,6 +8,8 @@ import io.github.hgkimer.privateblog.web.dto.request.PostCreateDto;
 import io.github.hgkimer.privateblog.web.dto.request.PostUpdateDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostDetailResponseDto;
 import io.github.hgkimer.privateblog.web.dto.response.PostSummaryResponseDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Post", description = "포스트 API")
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -42,6 +45,7 @@ public class PostApiController {
   private final PostService postService;
   private final CategoryService categoryService;
 
+  @Operation(summary = "포스트 생성")
   @PostMapping()
   public ResponseEntity<PostDetailResponseDto> createPost(
       @RequestBody @Valid PostCreateDto postCreateDto,
@@ -51,12 +55,14 @@ public class PostApiController {
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
 
+  @Operation(summary = "포스트 삭제")
   @DeleteMapping("/{id}")
   public ResponseEntity<Object> deletePost(@PathVariable @Positive Long id) {
     postService.deletePost(id);
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "포스트 수정")
   @PatchMapping("/{id}")
   public ResponseEntity<PostDetailResponseDto> updatePost(@PathVariable @Positive Long id,
       @Valid @RequestBody PostUpdateDto postUpdateDto) {
@@ -65,6 +71,7 @@ public class PostApiController {
     return ResponseEntity.ok(responseDto);
   }
 
+  @Operation(summary = "포스트 단건 조회", description = "slug로 포스트를 조회합니다.")
   @GetMapping("/{slug}")
   public ResponseEntity<PostDetailResponseDto> getPostBySlug(
       @PathVariable @Pattern(regexp = "^[a-z0-9-]+$") @NotBlank String slug) {
@@ -72,6 +79,7 @@ public class PostApiController {
     return ResponseEntity.ok(post);
   }
 
+  @Operation(summary = "포스트 목록 조회", description = "카테고리, 상태, 키워드로 필터링하여 페이지네이션 목록을 반환합니다.")
   @GetMapping("")
   public ResponseEntity<Page<PostSummaryResponseDto>> getPosts(
       @RequestParam(required = false) @Pattern(regexp = "^[a-z0-9-]+$") String categorySlug,

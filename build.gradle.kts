@@ -33,6 +33,9 @@ group = "io.github.hgkimer"
 version = "0.0.1-SNAPSHOT"
 description = "Private blog project"
 
+// CVE-2025-48924: commons-lang3 < 3.18.0 uncontrolled recursion vulnerability
+extra["commons-lang3.version"] = "3.18.0"
+
 /*
 	확장 설정 블록 (Extension configuration block)
 		- 혹은 Gradle extension 블록
@@ -121,6 +124,9 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
+
+    // springdoc-openapi (Swagger UI)
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
 
     // flyway
     implementation("org.flywaydb:flyway-core")
