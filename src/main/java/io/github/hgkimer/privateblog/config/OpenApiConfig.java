@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
     info = @Info(
-        title = "HGKimer Blog API",
+        title = "Blog API",
         version = "1.0.0",
         description = "Private blog API documentation"
     )
