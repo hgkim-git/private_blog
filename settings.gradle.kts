@@ -1,1 +1,1 @@
-rootProject.name = "private-blog"
+rootProject.name = "hgkimer-blog"
