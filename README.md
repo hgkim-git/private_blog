@@ -17,17 +17,18 @@
 
 ## Tech Stack
 
-| 분류                  | 기술                                                     |
-|---------------------|--------------------------------------------------------|
-| **Language**        | Java 17                                                |
-| **Framework**       | Spring Boot 3.5, Spring Security, Spring Data JPA      |
-| **Template**        | Thymeleaf                                              |
-| **Database**        | MySQL 8.0, Redis                                       |
-| **ORM / Migration** | Hibernate, Flyway                                      |
-| **Authentication**  | JWT (jjwt), Token Rotation, Blacklist                  |
-| **Markdown**        | Flexmark                                               |
-| **Build**           | Gradle (Kotlin DSL)                                    |
-| **Infra**           | Docker, Docker Compose, Nginx, Certbot (Let's Encrypt) |
+| 분류                  | 기술                                                                                                            |
+|---------------------|---------------------------------------------------------------------------------------------------------------|
+| **Language**        | Java 17                                                                                                       |
+| **Framework**       | Spring Boot 3.5, Spring Security, Spring Data JPA                                                             |
+| **Template**        | Thymeleaf                                                                                                     |
+| **Database**        | MySQL 8.0, Redis                                                                                              |
+| **ORM / Migration** | Hibernate, Flyway                                                                                             |
+| **Authentication**  | JWT (jjwt), Token Rotation, Blacklist                                                                         |
+| **Markdown**        | Flexmark                                                                                                      |
+| **Build**           | Gradle (Kotlin DSL)                                                                                           |
+| **Infra**           | AWS EC2, AWS Route53, Docker, Docker Compose, Nginx, Certbot (Let's Encrypt), Springdoc (OpenAPI, Swagger UI) |
+| **CI/CD**           | GitHub Actions, GHCR (GitHub Container Registry)                                                              |
 
 ---
 
@@ -52,9 +53,12 @@
 
 ### 인프라
 
+- AWS EC2 + Route53으로 실제 서비스 호스팅
 - Docker Compose로 앱 + MySQL + 볼륨 통합 관리
-- Nginx 리버스 프록시
+- Nginx 리버스 프록시 + HTTPS (Certbot)
+- Nginx 로그 기반 Fail2ban으로 악성 IP 자동 차단
 - Flyway로 DB 스키마 버전 관리
+- GitHub Actions CI/CD 파이프라인 (테스트 → JAR 빌드 → Docker 이미지 빌드/GHCR 푸시 → EC2 자동 배포)
 
 ---
 
@@ -66,7 +70,10 @@
 Client
   │
   ▼
-Nginx (443/80 → HTTPS, Rate Limit)
+AWS Route53
+  │
+  ▼
+Nginx (443/80 → HTTPS, Rate Limit, Fail2ban)   [AWS EC2]
   │
   ▼
 Spring Boot App (8080)
@@ -76,7 +83,12 @@ Spring Boot App (8080)
   └── Security Layer      — JWT Filter, UserDetailsService
         │
         ├── MySQL          — 게시글, 카테고리, 태그, 유저
-        └── Redis          — Refresh Token 저장 / Blacklist
+        └── Redis (Cloud)  — Refresh Token 저장 / Blacklist
+
+GitHub Actions (main push)
+  │  테스트 → JAR 빌드 → Docker 이미지 빌드 → GHCR 푸시 → EC2 배포
+  ▼
+AWS EC2
 ```
 
 ---
@@ -483,7 +495,55 @@ flexmark 렌더링 → jsoup Safelist.relaxed() 기반 커스텀 정책으로 sa
 
 ## 4. 인프라 / 배포
 
-### 4.1 Nginx `proxy_cookie_flags`가 Spring 쿠키 속성을 덮어쓰는 문제
+### 4.1 Docker Buildx 드라이버 설정과 GitHub Actions 캐시 레이어 재사용
+
+**고민한 상황**
+
+GitHub Actions에서 Docker 이미지를 빌드할 때, 기본 Docker 드라이버로는 `cache-from: type=gha` 옵션이 동작하지 않아 매 CI 실행마다
+이미지 레이어를 처음부터 전부 빌드하게 됩니다.
+
+**원인**
+
+기본 `docker` 드라이버는 BuildKit의 외부 캐시 백엔드를 지원하지 않습니다. GitHub Actions 캐시를 레이어 저장소로 활용하려면 BuildKit 기반의
+`docker-container` 드라이버가 필요합니다.
+
+**선택한 방법**
+
+`docker/setup-buildx-action`으로 Buildx(`docker-container` 드라이버)를 명시적으로 설정한 뒤,
+`docker/build-push-action`의 `cache-from: type=gha` / `cache-to: type=gha,mode=max` 옵션으로 GitHub
+Actions 캐시를 레이어 캐시 저장소로 연결했습니다.
+
+**이유 / 트레이드오프**
+
+코드 변경이 없는 레이어는 캐시에서 재사용되어 빌드 시간이 단축됩니다. Docker Buildx와 BuildKit의 캐시 백엔드는 드라이버에 따라 지원 여부가 달라지며, CI
+환경에서는 드라이버 선택이 빌드 효율에 직접 영향을 미칩니다.
+
+---
+
+### 4.2 GitHub Actions 러너의 동적 IP를 EC2 보안 그룹에 임시 허용
+
+**고민한 상황**
+
+EC2에 SSH로 배포하려면 보안 그룹에 러너 IP를 허용해야 하는데, GitHub Actions의 호스팅 러너 IP는 실행마다 달라져 사전에 고정 인바운드 규칙을 설정할 수
+없습니다.
+
+**원인**
+
+GitHub Actions의 호스팅 러너는 공유 IP 풀에서 동적으로 할당받기 때문에 매 워크플로우 실행마다 공개 IP가 변경됩니다.
+
+**선택한 방법**
+
+배포 직전에 `curl https://checkip.amazonaws.com`으로 러너 IP를 조회하고, AWS CLI로 해당 IP의 22번 포트를 보안 그룹에 임시 허용합니다.
+배포 완료 후 `if: always()` 조건의 별도 스텝에서 동일 규칙을 즉시 철회하여 배포 성공/실패 여부와 관계없이 인바운드 규칙이 정리되도록 구성했습니다.
+
+**이유 / 트레이드오프**
+
+보안 그룹에 넓은 IP 범위를 상시 허용하지 않아도 되어 최소 권한 원칙을 유지할 수 있습니다. `if: always()`를 활용해 배포 실패 시에도 인바운드 규칙이 반드시
+정리되도록 보장했습니다.
+
+---
+
+### 4.3 Nginx `proxy_cookie_flags`가 Spring 쿠키 속성을 덮어쓰는 문제
 
 **고민한 상황**
 
