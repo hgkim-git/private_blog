@@ -125,6 +125,16 @@ jobs:
             --port 22 \
             --cidr "${RUNNER_IP}/32"
 
+      - name: Copy docker-compose to EC2
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker/docker-compose.yaml"
+          target: "~/app/"
+          strip_components: 1
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
         env:
