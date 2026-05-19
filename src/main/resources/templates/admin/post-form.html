@@ -231,6 +231,32 @@
       color: #fff;
       border-color: var(--color-primary);
     }
+
+    /* AI 요약 모달 */
+    .ai-summary-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ai-summary-modal.is-open {
+      display: flex;
+    }
+
+    .ai-summary-modal-content {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 28px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
   </style>
 </head>
 <body>
@@ -324,10 +350,17 @@
 
         <!-- 요약 -->
         <div class="form-group">
-          <label class="form-label" for="postSummary">
-            요약
-            <span style="font-size: 12px; color: var(--text-secondary); font-weight: normal;">- 검색 결과 및 카드에 표시됩니다</span>
-          </label>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <label class="form-label" for="postSummary" style="margin-bottom: 0;">요약</label>
+            <span style="font-size: 12px; color: var(--text-secondary);">- 검색 결과 및 카드에 표시됩니다</span>
+            <button class="btn btn-secondary" id="aiSummarizeBtn"
+                    style="padding: 3px 10px; font-size: 12px; line-height: 1.5; height: auto;"
+                    type="button">🤖 AI
+              요약
+            </button>
+            <span id="aiSummarizeStatus"
+                  style="font-size:12px; color:var(--text-secondary);"></span>
+          </div>
           <textarea
               class="form-textarea"
               id="postSummary"
@@ -385,6 +418,21 @@
           </div>
         </div>
       </form>
+    </div>
+  </div>
+  <!-- AI 요약 결과 모달 -->
+  <div class="ai-summary-modal" id="aiSummaryModal">
+    <div class="ai-summary-modal-content">
+      <h3 style="margin-bottom:16px;">AI 요약 결과</h3>
+      <textarea class="form-textarea" id="aiSummaryResult" readonly
+                rows="6" style="width:100%; resize:vertical;"></textarea>
+      <small id="aiSummaryCharCount"
+             style="display:block; text-align:right; color:var(--text-secondary); margin-top:4px;"></small>
+      <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">
+        <button class="btn btn-secondary" id="aiSummaryCopyBtn" type="button">클립보드에 복사</button>
+        <button class="btn btn-primary" id="aiSummaryApplyBtn" type="button">적용</button>
+        <button class="btn btn-secondary" id="aiSummaryCloseBtn" type="button">닫기</button>
+      </div>
     </div>
   </div>
 </main>

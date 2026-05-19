@@ -98,8 +98,15 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    implementation("org.apache.commons:commons-pool2")
     "developmentOnly"("org.springframework.boot:spring-boot-devtools")
+    implementation(platform("org.springframework.ai:spring-ai-bom:1.1.6"))
+    // Spring AI — Gemini (1차 프로바이더)
+    implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
+    // Ollama (OCI 인스턴스 준비 후 교체; 위 Gemini 의존성과 교체)
+    // implementation("org.springframework.ai:spring-ai-starter-model-ollama")
+
+    // Apache Commons Pool
+    implementation("org.apache.commons:commons-pool2")
 
     // Lombok
     compileOnly("org.projectlombok:lombok")

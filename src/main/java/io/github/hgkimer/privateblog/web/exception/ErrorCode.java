@@ -35,7 +35,15 @@ public enum ErrorCode {
 
   // Infrastructure errors
   INFRASTRUCTURE_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "I001",
-      "Infrastructure error. Please try again later.");
+      "Infrastructure error. Please try again later."),
+
+  // AI errors
+  AI_SUMMARY_FAILED(HttpStatus.BAD_GATEWAY, "AI001", "AI 요약 생성에 실패했습니다. 잠시 후 다시 시도해 주세요."),
+  AI_RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "AI002", "요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요."),
+  AI_REQUEST_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "AI003", "요청 본문이 너무 커서 AI가 처리할 수 없습니다."),
+  AI_PROVIDER_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "AI004", "AI 응답 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요."),
+  AI_PROVIDER_AUTH_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "AI005",
+      "AI 서비스 인증에 실패했습니다. 관리자 설정을 확인해 주세요.");
 
   private final HttpStatus httpStatus;
   private final String code;
