@@ -261,3 +261,91 @@ function markExceeded(isExceeded, elem) {
   elem.style.color = isExceeded ? 'var(--color-danger)'
       : 'var(--text-secondary)';
 }
+
+// AI 요약
+const MAX_CONTENT_LENGTH = 50000;
+const aiSummarizeBtn = document.getElementById('aiSummarizeBtn');
+const aiSummarizeStatus = document.getElementById('aiSummarizeStatus');
+const aiSummaryModal = document.getElementById('aiSummaryModal');
+const aiSummaryResult = document.getElementById('aiSummaryResult');
+const aiSummaryCharCount = document.getElementById('aiSummaryCharCount');
+
+function openAiModal() {
+  aiSummaryModal.classList.add('is-open');
+}
+
+function closeAiModal() {
+  aiSummaryModal.classList.remove('is-open');
+}
+
+aiSummarizeBtn.addEventListener('click', async () => {
+  const content = easyMDE.value();
+  if (!content.trim()) {
+    alert('본문 내용을 먼저 입력해 주세요.');
+    return;
+  }
+  if (content.length > MAX_CONTENT_LENGTH) {
+    alert(
+        `본문이 너무 깁니다. (${content.length.toLocaleString()}자)\n50,000자 이하의 본문만 요약할 수 있습니다.`);
+    return;
+  }
+  aiSummarizeBtn.disabled = true;
+  aiSummarizeStatus.textContent = '요약 생성 중...';
+  try {
+    const data = await api.post('/api/ai/summarize', {content});
+    if (typeof data.summary !== 'string' || !data.summary.trim()) {
+      aiSummarizeStatus.textContent = '오류: 요약 결과가 비어 있습니다. 다시 시도해 주세요.';
+      return;
+    }
+    aiSummaryResult.value = data.summary;
+    aiSummaryCharCount.textContent = `${data.summary.length}자`;
+    aiSummarizeStatus.textContent = '';
+    openAiModal();
+  } catch (e) {
+    aiSummarizeStatus.textContent = `오류: ${e.message}`;
+  } finally {
+    aiSummarizeBtn.disabled = false;
+  }
+});
+
+document.getElementById('aiSummaryApplyBtn').addEventListener('click', () => {
+  const summary = aiSummaryResult.value;
+  if (summary.length > 500) {
+    alert('요약이 500자를 초과합니다. 직접 수정 후 적용해 주세요.');
+    return;
+  }
+  const summaryTextarea = document.getElementById('postSummary');
+  summaryTextarea.value = summary;
+  summaryTextarea.dispatchEvent(new Event('input'));
+  closeAiModal();
+});
+
+document.getElementById('aiSummaryCopyBtn').addEventListener('click',
+    async () => {
+      const copyBtn = document.getElementById('aiSummaryCopyBtn');
+      try {
+        await navigator.clipboard.writeText(aiSummaryResult.value);
+        copyBtn.textContent = '복사됨!';
+      } catch (e) {
+        aiSummaryResult.select();
+        copyBtn.textContent = '직접 복사해 주세요';
+      }
+      setTimeout(() => {
+        copyBtn.textContent = '클립보드에 복사';
+      }, 1500);
+    });
+
+document.getElementById('aiSummaryCloseBtn').addEventListener('click',
+    closeAiModal);
+
+aiSummaryModal.addEventListener('click', (e) => {
+  if (e.target === aiSummaryModal) {
+    closeAiModal();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && aiSummaryModal.classList.contains('is-open')) {
+    closeAiModal();
+  }
+});

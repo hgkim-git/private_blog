@@ -16,3 +16,21 @@ spring:
       mode: never
   cache:
     type: simple
+  ai:
+    retry:
+      max-attempts: 2
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+        chat:
+          options:
+            model: gemini-3.1-flash-lite
+            temperature: 0.3
+    # Ollama 프로바이더 교체 시 아래 주석을 해제하고 위 google.genai 블록을 제거한다.
+    # ollama:
+    #   base-url: http://<OCI-내부IP>:11434
+    #   chat:
+    #     options:
+    #       model: qwen2.5:7b
+    #       temperature: 0.3
+    #       num-predict: 512
