@@ -1,0 +1,155 @@
+package io.github.hgkimer.blog.web.controller;
+
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
+import io.github.hgkimer.blog.domain.entity.Category;
+import io.github.hgkimer.blog.service.CategoryService;
+import io.github.hgkimer.blog.support.web.controller.ControllerSliceTest;
+import io.github.hgkimer.blog.support.web.controller.ControllerTestBase;
+import io.github.hgkimer.blog.web.dto.response.CategoryResponseDto;
+import io.github.hgkimer.blog.web.exception.ErrorCode;
+import io.github.hgkimer.blog.web.exception.ErrorResponse;
+import io.github.hgkimer.blog.web.exception.FieldErrorResponse;
+import io.github.hgkimer.blog.web.exception.ResourceNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
+
+@ControllerSliceTest(CategoryApiController.class)
+class CategoryApiControllerTest extends ControllerTestBase {
+
+  private final String uriRoot = "/api/categories";
+  @Autowired
+  private MockMvcTester mockMvcTester;
+
+  @MockitoBean
+  private CategoryService categoryService;
+
+  private Category category;
+
+  @BeforeEach
+  void setUp() {
+    category = Category.builder()
+        .name("Test Category")
+        .slug("test-category")
+        .build();
+  }
+
+  @Test
+  @DisplayName("유효한 카테고리 생성 시 201 Created 응답과 생성된 카테고리를 반환해야 한다.")
+  void givenValidCategory_whenCreateCategory_thenReturnCreatedCategory() {
+    given(categoryService.createCategory(any())).willReturn(category);
+    String json = """
+        {
+         "name":"Test Category",
+         "slug":"test-category"
+        }
+        """;
+    mockMvcTester.post().uri(uriRoot)
+        .content(json)
+        .contentType(MediaType.APPLICATION_JSON)
+        .exchange()
+        .assertThat()
+        .hasStatus(HttpStatus.CREATED)
+        .bodyJson()
+        .convertTo(CategoryResponseDto.class)
+        .satisfies(response -> {
+          assertThat(response.name()).isEqualTo(category.getName());
+          assertThat(response.slug()).isEqualTo(category.getSlug());
+        });
+  }
+
+  @Test
+  @DisplayName("유효하지 않은 카테고리 정보로 생성 시 400 Bad Request 응답을 반환해야 한다.")
+  void givenInvalidCategory_whenCreateCategory_thenThrowBadRequest() {
+    String json = """
+        {
+            "name":"Invalid Category",
+            "slug":"부적절한 카테고리 slug"
+        }
+        """;
+    mockMvcTester.post().uri(uriRoot)
+        .content(json)
+        .contentType(MediaType.APPLICATION_JSON)
+        .exchange()
+        .assertThat()
+        .hasStatus(HttpStatus.BAD_REQUEST)
+        .bodyJson().convertTo(ErrorResponse.class)
+        .satisfies(response -> {
+          assertThat(response.fieldErrors()).isNotEmpty().hasSize(1);
+          FieldErrorResponse fieldError = response.fieldErrors().get(0);
+          assertThat(fieldError.field()).isEqualTo("slug");
+        });
+  }
+
+  @Test
+  @DisplayName("ID로 카테고리 조회 시 200 OK 응답을 반환해야 한다.")
+  void givenId_whenGetCategory_thenOk() {
+    given(categoryService.getCategoryById(any())).willReturn(category);
+    mockMvcTester.get().uri(uriRoot + "/1")
+        .exchange()
+        .assertThat()
+        .hasStatus(HttpStatus.OK)
+        .bodyJson()
+        .convertTo(CategoryResponseDto.class)
+        .satisfies(response -> {
+          assertThat(response.name()).isEqualTo(category.getName());
+          assertThat(response.slug()).isEqualTo(category.getSlug());
+        });
+  }
+
+  @Test
+  @DisplayName("존재하지 않는 ID로 카테고리 조회 시 404 Not Found 응답을 반환해야 한다.")
+  void givenWrongId_whenGetCategory_thenThrowNotFound() {
+    given(categoryService.getCategoryById(any())).willThrow(new ResourceNotFoundException(
+        ErrorCode.CATEGORY_NOT_FOUND));
+    mockMvcTester.get().uri(uriRoot + "/100")
+        .exchange()
+        .assertThat()
+        .hasStatus(HttpStatus.NOT_FOUND);
+  }
+
+  @Test
+  @DisplayName("ID로 카테고리 삭제 시 204 No Content 응답을 반환해야 한다.")
+  void givenId_whenDeleteCategory_thenResponseNoContent() {
+    mockMvcTester.delete().uri(uriRoot + "/1")
+        .exchange()
+        .assertThat()
+        .hasStatus(HttpStatus.NO_CONTENT);
+  }
+
+  @Test
+  @DisplayName("유효한 파라미터로 카테고리 수정 시 200 OK 응답을 반환해야 한다.")
+  void givenValidParam_whenUpdateCategory_thenOk() {
+    Category updated = Category.builder().name("updated").slug("updated-category").build();
+    given(categoryService.updateCategory(any(), any())).willReturn(updated);
+    String json = """
+        {
+         "name":"updated",
+         "slug":"updated-category",
+         "displayOrder":1
+        }
+        """;
+    mockMvcTester.patch().uri(uriRoot + "/1")
+        .content(json)
+        .contentType(MediaType.APPLICATION_JSON)
+        .exchange()
+        .assertThat()
+        .hasStatus(HttpStatus.OK)
+        .bodyJson().convertTo(CategoryResponseDto.class)
+        .satisfies(response -> {
+          assertThat(response.name()).isEqualTo("updated");
+          assertThat(response.slug()).isEqualTo("updated-category");
+        });
+
+  }
+
+}

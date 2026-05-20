@@ -40,7 +40,7 @@ jwt:
 logging:
   level:
     root: INFO
-    io.github.hgkimer.privateblog: DEBUG
+    io.github.hgkimer.blog: DEBUG
     p6spy: INFO
     org.springframework.security: TRACE
   pattern:

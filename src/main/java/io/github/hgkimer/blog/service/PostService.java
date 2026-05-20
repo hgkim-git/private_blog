@@ -1,0 +1,194 @@
+package io.github.hgkimer.blog.service;
+
+import io.github.hgkimer.blog.domain.entity.Category;
+import io.github.hgkimer.blog.domain.entity.Post;
+import io.github.hgkimer.blog.domain.entity.PostTag;
+import io.github.hgkimer.blog.domain.entity.Tag;
+import io.github.hgkimer.blog.domain.entity.User;
+import io.github.hgkimer.blog.domain.enums.PostStatus;
+import io.github.hgkimer.blog.persistence.jpa.CategoryRepository;
+import io.github.hgkimer.blog.persistence.jpa.PostRepository;
+import io.github.hgkimer.blog.persistence.jpa.TagRepository;
+import io.github.hgkimer.blog.persistence.jpa.UserRepository;
+import io.github.hgkimer.blog.web.dto.request.PostCreateDto;
+import io.github.hgkimer.blog.web.dto.request.PostUpdateDto;
+import io.github.hgkimer.blog.web.dto.response.PostDetailResponseDto;
+import io.github.hgkimer.blog.web.dto.response.PostSummaryResponseDto;
+import io.github.hgkimer.blog.web.exception.DuplicateResourceException;
+import io.github.hgkimer.blog.web.exception.ErrorCode;
+import io.github.hgkimer.blog.web.exception.ResourceNotFoundException;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.EntityManager;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+@Slf4j
+public class PostService {
+
+  private final PostRepository postRepository;
+  private final UserRepository userRepository;
+  private final CategoryRepository categoryRepository;
+  private final TagRepository tagRepository;
+
+  private final EntityManager entityManager;
+
+  private final MarkdownService markdownService;
+
+  public Post createPost(PostCreateDto postCreateDto, String email) {
+    if (postCreateDto.categoryId() != null) {
+      validateCategory(postCreateDto.categoryId());
+    }
+    validateTags(postCreateDto.tagIds());
+    if (postRepository.existsBySlug(postCreateDto.slug())) {
+      throw new DuplicateResourceException(ErrorCode.DUPLICATE_POST_SLUG,
+          postCreateDto.slug());
+    }
+    User user = getRequiredUser(email);
+    Category category = getOptionalCategory(postCreateDto.categoryId());
+    String htmlContent = markdownService.convertToHtml(postCreateDto.content());
+    Post post = Post.of(
+        category,
+        user,
+        postCreateDto.title(),
+        postCreateDto.content(),
+        htmlContent,
+        postCreateDto.summary(),
+        postCreateDto.slug(),
+        PostStatus.valueOf(postCreateDto.status().toUpperCase())
+    );
+    List<Tag> tags = tagRepository.findTagByIdIn(postCreateDto.tagIds());
+    addTags(post, tags);
+    return postRepository.save(post);
+  }
+
+  public Post updatePost(Long id, PostUpdateDto postUpdateDto) {
+    Long categoryId = postUpdateDto.categoryId();
+    if (categoryId != null) {
+      validateCategory(categoryId);
+    }
+    validateTags(postUpdateDto.tagIds());
+
+    Post post = postRepository.findByIdWithDetails(id)
+        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.POST_NOT_FOUND, id.toString()));
+
+    String slug = postUpdateDto.slug();
+    if (!slug.equals(post.getSlug()) && postRepository.existsBySlug(postUpdateDto.slug())) {
+      throw new DuplicateResourceException(ErrorCode.DUPLICATE_POST_SLUG);
+    }
+
+    String contentHtml = markdownService.convertToHtml(postUpdateDto.content());
+    Category category = getOptionalCategory(categoryId);
+    post.update(
+        postUpdateDto.title(),
+        postUpdateDto.content(),
+        contentHtml,
+        postUpdateDto.summary(),
+        postUpdateDto.slug(),
+        category
+    );
+    String status = postUpdateDto.status().toUpperCase();
+    if ("PUBLISHED".equals(status)) {
+      post.publish();
+    } else if ("DRAFT".equals(status)) {
+      post.draft();
+    }
+    List<Tag> tags = tagRepository.findTagByIdIn(postUpdateDto.tagIds());
+    addTags(post, tags);
+    return post;
+  }
+
+  public void deletePost(Long id) {
+    if (!postRepository.existsById(id)) {
+      throw new ResourceNotFoundException(ErrorCode.POST_NOT_FOUND, id.toString());
+    }
+    postRepository.deleteById(id);
+  }
+
+  @Transactional(readOnly = true)
+  public PostDetailResponseDto getPostById(Long id) {
+    Post post = postRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.POST_NOT_FOUND, id.toString()));
+    return PostDetailResponseDto.from(post);
+  }
+
+  public PostDetailResponseDto getPostBySlug(String slug) {
+    Post post = postRepository.findBySlugWithDetails(slug)
+        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.POST_NOT_FOUND, slug));
+    if (post.getStatus() == PostStatus.PUBLISHED) {
+      postRepository.increaseViewCount(post.getId());
+      entityManager.refresh(post);
+    }
+    return PostDetailResponseDto.from(post);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<PostSummaryResponseDto> getAllPosts(@Nullable Long categoryId,
+      @Nullable PostStatus status,
+      @Nullable String keyword,
+      Pageable pageable) {
+    return postRepository.findAllPosts(categoryId, status, keyword, pageable).map(
+        PostSummaryResponseDto::from);
+  }
+
+  @Transactional(readOnly = true)
+  public List<Post> getAllPublishedPosts() {
+    return postRepository.findAllPostByStatus(PostStatus.PUBLISHED);
+  }
+
+  @Scheduled(cron = "0 0 3 * * *")
+  @CacheEvict(value = "sitemap", allEntries = true)
+  public void invalidateSitemapCache() {
+    if (log.isDebugEnabled()) {
+      log.debug("Invalidating sitemap cache");
+    }
+  }
+
+  private void validateCategory(Long categoryId) {
+    categoryRepository.findById(categoryId)
+        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.CATEGORY_NOT_FOUND,
+            categoryId.toString()));
+  }
+
+  private void validateTags(List<Long> tagIds) {
+    if (tagIds == null || tagIds.isEmpty()) {
+      return;
+    }
+    List<Tag> tags = tagRepository.findTagByIdIn(tagIds);
+    if (tagIds.size() != tags.size()) {
+      throw new IllegalArgumentException("Tags mismatched");
+    }
+  }
+
+  private void addTags(Post post, List<Tag> tags) {
+    List<PostTag> postTags = tags.stream()
+        .map(tag -> PostTag.builder().post(post).tag(tag).build())
+        .collect(Collectors.toList());
+    post.addTags(postTags);
+  }
+
+  private User getRequiredUser(String email) {
+    return userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND, email));
+  }
+
+  @Nullable
+  private Category getOptionalCategory(Long categoryId) {
+    return Optional.ofNullable(categoryId)
+        .flatMap(categoryRepository::findById).orElse(null);
+  }
+
+
+}
+

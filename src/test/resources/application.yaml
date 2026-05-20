@@ -19,7 +19,7 @@ spring:
 logging:
   level:
     root: INFO
-    io.github.hgkimer.privateblog: DEBUG
+    io.github.hgkimer.blog: DEBUG
     p6spy: INFO
   pattern:
     console: "%d{HH:mm:ss.SSS} %clr(%-5level) %clr([%15.15thread]){cyan} %clr(%-40.40logger{39}){blue} - %msg%n"

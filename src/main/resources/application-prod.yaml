@@ -30,7 +30,7 @@ spring:
 logging:
   level:
     root: INFO
-    io.github.hgkimer.privateblog: INFO
+    io.github.hgkimer.blog: INFO
     p6spy: OFF
   file:
     name: ./logs/application.log
