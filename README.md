@@ -26,6 +26,7 @@
 | **ORM / Migration** | Hibernate, Flyway                                                                                             |
 | **Authentication**  | JWT (jjwt), Token Rotation, Blacklist                                                                         |
 | **Markdown**        | Flexmark                                                                                                      |
+| **AI**              | Spring AI 1.1.6, Google Gemini API                                                                            |
 | **Build**           | Gradle (Kotlin DSL)                                                                                           |
 | **Infra**           | AWS EC2, AWS Route53, Docker, Docker Compose, Nginx, Certbot (Let's Encrypt), Springdoc (OpenAPI, Swagger UI) |
 | **CI/CD**           | GitHub Actions, GHCR (GitHub Container Registry)                                                              |
@@ -41,6 +42,7 @@
 - 게시글 상태 관리 (임시저장 / 발행)
 - 조회수 카운트
 - 키워드 검색 및 카테고리 필터링 (페이지네이션)
+- Spring AI + Google Gemini 기반 게시글 AI 요약 생성 (ADMIN 전용)
 
 ### 인증 / 보안
 
