@@ -7,12 +7,12 @@
 <body>
 <aside class="sidebar" th:fragment="navigation">
   <nav class="sidebar-nav">
-    <!--<a class="nav-item"
+    <a class="nav-item"
        th:classappend="${#strings.startsWith(currentUri, '/admin/dashboard') ? 'active' : ''}"
        th:href="@{/admin/dashboard}">
       <span class="nav-icon">📊</span>
       <span>대시보드</span>
-    </a>-->
+    </a>
     <a class="nav-item"
        th:classappend="${#strings.startsWith(currentUri, '/admin/posts') ? 'active' : ''}"
        th:href="@{/admin/posts}">

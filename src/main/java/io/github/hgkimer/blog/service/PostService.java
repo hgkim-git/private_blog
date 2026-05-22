@@ -147,6 +147,16 @@ public class PostService {
     return postRepository.findAllPostByStatus(PostStatus.PUBLISHED);
   }
 
+  @Transactional(readOnly = true)
+  public long getPublishedPostCount() {
+    return postRepository.countByStatus(PostStatus.PUBLISHED);
+  }
+
+  @Transactional(readOnly = true)
+  public long getDraftPostCount() {
+    return postRepository.countByStatus(PostStatus.DRAFT);
+  }
+
   @Scheduled(cron = "0 0 3 * * *")
   @CacheEvict(value = "sitemap", allEntries = true)
   public void invalidateSitemapCache() {

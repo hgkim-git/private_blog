@@ -289,4 +289,32 @@ class PostServiceTest {
     then(postRepository).should().findAllPostByStatus(PostStatus.PUBLISHED);
   }
 
+  @Test
+  @DisplayName("발행된 게시글 수를 반환해야 한다.")
+  void testGetPublishedPostCount() {
+    // given
+    given(postRepository.countByStatus(PostStatus.PUBLISHED)).willReturn(7L);
+
+    // when
+    long result = postService.getPublishedPostCount();
+
+    // then
+    assertThat(result).isEqualTo(7L);
+    then(postRepository).should().countByStatus(PostStatus.PUBLISHED);
+  }
+
+  @Test
+  @DisplayName("임시저장 게시글 수를 반환해야 한다.")
+  void testGetDraftPostCount() {
+    // given
+    given(postRepository.countByStatus(PostStatus.DRAFT)).willReturn(3L);
+
+    // when
+    long result = postService.getDraftPostCount();
+
+    // then
+    assertThat(result).isEqualTo(3L);
+    then(postRepository).should().countByStatus(PostStatus.DRAFT);
+  }
+
 }
