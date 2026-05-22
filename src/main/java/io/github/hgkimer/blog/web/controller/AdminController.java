@@ -4,7 +4,9 @@ import io.github.hgkimer.blog.domain.enums.PostStatus;
 import io.github.hgkimer.blog.service.CategoryService;
 import io.github.hgkimer.blog.service.PostService;
 import io.github.hgkimer.blog.service.TagService;
+import io.github.hgkimer.blog.service.VisitService;
 import io.github.hgkimer.blog.web.dto.response.CategoryResponseDto;
+import io.github.hgkimer.blog.web.dto.response.DashboardStatsDto;
 import io.github.hgkimer.blog.web.dto.response.PostDetailResponseDto;
 import io.github.hgkimer.blog.web.dto.response.PostSummaryResponseDto;
 import io.github.hgkimer.blog.web.dto.response.TagResponseDto;
@@ -36,16 +38,25 @@ public class AdminController {
   private final CategoryService categoryService;
   private final TagService tagService;
   private final PostService postService;
+  private final VisitService visitService;
 
   @ModelAttribute("currentUri")
   public String currentUri(HttpServletRequest request) {
     return request.getRequestURI();
   }
 
-//  @GetMapping("/dashboard")
-//  public String dashboard(Model model) {
-//    return "admin/dashboard";
-//  }
+  @GetMapping("/dashboard")
+  public String dashboard(Model model) {
+    long published = postService.getPublishedPostCount();
+    long draft = postService.getDraftPostCount();
+    DashboardStatsDto stats = new DashboardStatsDto(
+        published + draft, published, draft,
+        visitService.getTodayVisitorCount(),
+        visitService.getTotalVisitorCount()
+    );
+    model.addAttribute("stats", stats);
+    return "admin/dashboard";
+  }
 
   @GetMapping("/posts")
   public String postManagement(
@@ -122,8 +133,4 @@ public class AdminController {
     return "admin/tags";
   }
 
-//  @GetMapping("/comments")
-//  public String commentManagement(Model model) {
-//    return "admin/comments";
-//  }
 }

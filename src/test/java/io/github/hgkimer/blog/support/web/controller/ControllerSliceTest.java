@@ -1,7 +1,9 @@
 package io.github.hgkimer.blog.support.web.controller;
 
 import io.github.hgkimer.blog.config.SecurityConfig;
+import io.github.hgkimer.blog.config.WebMvcConfig;
 import io.github.hgkimer.blog.security.JwtAuthenticationFilter;
+import io.github.hgkimer.blog.web.interceptor.VisitInterceptor;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,7 +27,9 @@ public @interface ControllerSliceTest {
   ComponentScan.Filter[] excludeFilters() default {
       @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
           SecurityConfig.class,
-          JwtAuthenticationFilter.class
+          JwtAuthenticationFilter.class,
+          WebMvcConfig.class,
+          VisitInterceptor.class
       })
   };
 }

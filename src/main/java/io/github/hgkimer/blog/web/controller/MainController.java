@@ -18,7 +18,7 @@ public class MainController {
 
   @RequestMapping("/admin")
   public String adminLanding() {
-    return "redirect:/admin/posts";
+    return "redirect:/admin/dashboard";
   }
 
   @GetMapping("/admin/login")

@@ -13,6 +13,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.hgkimer.blog.config.SecurityConfig;
+import io.github.hgkimer.blog.config.WebMvcConfig;
 import io.github.hgkimer.blog.properties.JwtProperties;
 import io.github.hgkimer.blog.security.CustomUserDetailsService;
 import io.github.hgkimer.blog.security.JwtAuthenticationFilter;
@@ -21,6 +22,7 @@ import io.github.hgkimer.blog.security.UserPrincipal;
 import io.github.hgkimer.blog.service.auth.AuthTokenService;
 import io.github.hgkimer.blog.service.auth.RedisTokenStore;
 import io.github.hgkimer.blog.web.dto.request.LoginRequestDto;
+import io.github.hgkimer.blog.web.interceptor.VisitInterceptor;
 import io.github.hgkimer.blog.web.support.JwtTokenCookieManager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -32,6 +34,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -44,7 +48,12 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@WebMvcTest(AuthController.class)
+@WebMvcTest(
+    controllers = AuthController.class,
+    excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
+        WebMvcConfig.class, VisitInterceptor.class
+    })
+)
 @Import({SecurityConfig.class, JwtAuthenticationFilter.class, AuthTokenService.class,
     JwtTokenCookieManager.class})
 class AuthControllerTest {

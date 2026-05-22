@@ -55,5 +55,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
   List<Post> findAllPostByStatus(PostStatus status);
 
+  long countByStatus(PostStatus status);
 
 }

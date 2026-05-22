@@ -203,4 +203,23 @@ class PostRepositoryTest {
     assertThat(result).allMatch(p -> p.getStatus() == PostStatus.PUBLISHED);
   }
 
+  @Test
+  @DisplayName("상태별 게시글 수 집계 시 해당 상태의 게시글 수만 반환해야 한다.")
+  void givenMixedStatusPosts_whenCountByStatus_thenReturnCorrectCount() {
+    for (int i = 0; i < 4; i++) {
+      postRepository.save(
+          PostFixtureFactory.createFixture(category, author, "발행 게시글" + i, "published-" + i,
+              PostStatus.PUBLISHED));
+    }
+    for (int i = 0; i < 2; i++) {
+      postRepository.save(
+          PostFixtureFactory.createFixture(category, author, "임시 게시글" + i, "draft-" + i,
+              PostStatus.DRAFT));
+    }
+    entityManager.flush();
+
+    assertThat(postRepository.countByStatus(PostStatus.PUBLISHED)).isEqualTo(4);
+    assertThat(postRepository.countByStatus(PostStatus.DRAFT)).isEqualTo(2);
+  }
+
 }
