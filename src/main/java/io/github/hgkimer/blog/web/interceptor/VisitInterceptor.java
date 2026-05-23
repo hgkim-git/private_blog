@@ -4,6 +4,7 @@ import io.github.hgkimer.blog.service.VisitService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -14,8 +15,9 @@ public class VisitInterceptor implements HandlerInterceptor {
   private final VisitService visitService;
 
   @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
-      Object handler) {
+  public boolean preHandle(@NonNull HttpServletRequest request,
+      @NonNull HttpServletResponse response,
+      @NonNull Object handler) {
     String ip = extractIp(request);
     visitService.recordVisit(ip);
     return true;
