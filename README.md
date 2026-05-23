@@ -43,6 +43,7 @@
 - 조회수 카운트
 - 키워드 검색 및 카테고리 필터링 (페이지네이션)
 - Spring AI + Google Gemini 기반 게시글 AI 요약 생성 (ADMIN 전용)
+- IP 기반 방문자 통계 (일별 중복 방문 제거, 어드민 대시보드에서 오늘/전체 방문자 수 확인)
 
 ### 인증 / 보안
 
@@ -144,6 +145,11 @@ erDiagram
         DATETIME created_at
         DATETIME updated_at
     }
+    visit_log {
+        BIGINT id PK
+        VARCHAR ip
+        DATE visited_at
+    }
 
     users ||--o{ post : "작성"
     category ||--o{ post : "분류"
@@ -159,7 +165,7 @@ erDiagram
 private_blog/
 ├── src/main/java/.../
 │   ├── config/            # Spring 설정 (Security, JPA, Markdown 등)
-│   ├── domain/entity/     # JPA 엔티티 (Post, Category, Tag, User)
+│   ├── domain/entity/     # JPA 엔티티 (Post, Category, Tag, User, VisitLog)
 │   ├── persistence/jpa/   # Repository 인터페이스
 │   ├── service/           # 비즈니스 로직
 │   │   └── auth/          # JWT 발급 / 로테이션 / 블랙리스트
@@ -167,6 +173,7 @@ private_blog/
 │   └── web/
 │       ├── controller/    # REST API + Thymeleaf View Controller
 │       ├── dto/           # Request / Response DTO
+│       ├── interceptor/   # VisitInterceptor (IP 기반 방문 기록)
 │       └── exception/     # 전역 예외 처리
 ├── src/main/resources/
 │   ├── db/migration/      # Flyway SQL 마이그레이션
